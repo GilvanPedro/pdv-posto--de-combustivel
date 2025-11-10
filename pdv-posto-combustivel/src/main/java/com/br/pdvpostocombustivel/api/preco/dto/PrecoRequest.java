@@ -1,5 +1,6 @@
 package com.br.pdvpostocombustivel.api.preco.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -17,6 +18,7 @@ public class PrecoRequest {
     private Date dataAlteracao;
 
     @Schema(description = "Hora da alteração", example = "10:30:00")
+    @JsonFormat(pattern = "HH:mm:ss")
     private Date horaAlteracao;
 
     // Getters e Setters

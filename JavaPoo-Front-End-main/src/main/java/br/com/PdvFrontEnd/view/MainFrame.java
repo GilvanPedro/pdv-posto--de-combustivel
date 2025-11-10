@@ -5,16 +5,11 @@ import br.com.PdvFrontEnd.util.SessionManager;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class MainFrame extends JFrame {
-    private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
     private static final Color SECONDARY_COLOR = new Color(75, 75, 75);
-    private static final Color ACCENT_COLOR = new Color(100, 80, 180);
     private static final Color TEXT_COLOR = Color.WHITE;
-    private static final Color BUTTON_HOVER_COLOR = new Color(169, 156, 199);
-    private static final Color ACTIVE_COLOR = new Color(46, 204, 113); // Verde
+
 
     private JTabbedPane tabbedPane;
     private SessionManager sessionManager;
@@ -29,25 +24,24 @@ public class MainFrame extends JFrame {
     private void initComponents() {
         setTitle("Gerenciamento PDV - " + (isAdmin ? "ADMINISTRADOR" : "FRENTISTA"));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 760); // Aumentar o tamanho para acomodar o conteúdo das abas
+        setSize(1000, 770); // Aumentar o tamanho para acomodar o conteúdo das abas
         setLocationRelativeTo(null);
 
         // Painel principal com BorderLayout
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(SECONDARY_COLOR);
-        
+
         // 1. Painel Superior (Header)
         JPanel headerPanel = createHeaderPanel();
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
         // 2. Painel de Abas (JTabbedPane)
-        tabbedPane = new JTabbedPane(JTabbedPane.TOP); // Removido JTabbedPane.SCROLL_TAB_LAYOUT
+        tabbedPane = new JTabbedPane(JTabbedPane.TOP);
         tabbedPane.setFont(new Font("Segoe UI", Font.BOLD, 14));
         tabbedPane.setBackground(SECONDARY_COLOR);
         tabbedPane.setForeground(TEXT_COLOR);
         tabbedPane.setOpaque(true);
-        
-        // Adicionar abas
+
         addTabs();
         
         // Para centralizar as abas, vamos usar um JPanel com FlowLayout.CENTER
@@ -108,10 +102,6 @@ public class MainFrame extends JFrame {
     }
 
     private void addTabs() {
-        // Aba principal para Frentista e Admin
-        // A BombaListView será adaptada para ser um JPanel
-        tabbedPane.addTab("Abastecimento", new BombaListView()); 
-        
         if (isAdmin) {
             // Abas adicionais apenas para o Administrador
             tabbedPane.addTab("Gerenciar Pessoas", new PessoaList(new PessoaService()));
@@ -122,6 +112,9 @@ public class MainFrame extends JFrame {
             tabbedPane.addTab("Gerenciar Acessos", new AcessoList(new AcessoService()));
             tabbedPane.addTab("Gerenciar Contatos", new ContatoList(new ContatoService()));
         }
+
+        tabbedPane.addTab("Abastecimento", new BombaListView());
+
     }
 
     // Método auxiliar para criar botões estilizados (copiado de MainApp)

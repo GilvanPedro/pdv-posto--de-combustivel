@@ -45,6 +45,16 @@
             <artifactId>flatlaf</artifactId>
             <version>3.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.br</groupId>
+            <artifactId>pdv-frontend</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.br</groupId>
+            <artifactId>pdvpostocombustivel</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
     </dependencies>
 

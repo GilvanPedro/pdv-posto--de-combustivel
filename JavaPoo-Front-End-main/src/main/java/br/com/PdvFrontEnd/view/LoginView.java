@@ -14,7 +14,7 @@ public class LoginView extends JFrame {
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
     private static final Color SECONDARY_COLOR = new Color(75, 75, 75);
     private static final Color ACCENT_COLOR = new Color(100, 80, 180);
-    private static final Color SUCCESS_COLOR = new Color(46, 204, 113);
+    private static final Color SUCCESS_COLOR = new Color(222, 187, 109);
     private static final Color PURPLE_COLOR = new Color(89, 129, 182);
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Color BUTTON_HOVER_COLOR = new Color(169, 156, 199);

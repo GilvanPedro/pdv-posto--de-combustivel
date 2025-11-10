@@ -19,6 +19,7 @@ public class CustoForm extends JFrame {
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Color BACKGROUND_COLOR = new Color(75, 75, 75);
     private static final Color BUTTON_HOVER_COLOR = new Color(169, 156, 199);
+    private static final Color BG2 = new Color(255, 255, 255);
 
     private JTextField txtImposto;
     private JTextField txtFrete;
@@ -40,12 +41,12 @@ public class CustoForm extends JFrame {
         this.custoEmEdicao = custo;
 
         setTitle(custo == null ? "Cadastro de Custo" : "Editar Custo");
-        getContentPane().setBackground(BACKGROUND_COLOR);
+        getContentPane().setBackground(BG2);
         setSize(500, 550);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         JPanel mainPanel = new JPanel(new GridLayout(7, 2, 10, 10));
-        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBackground(BG2);
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         add(mainPanel, BorderLayout.CENTER);
 

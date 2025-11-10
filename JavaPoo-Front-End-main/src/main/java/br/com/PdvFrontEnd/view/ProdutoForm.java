@@ -16,6 +16,7 @@ public class ProdutoForm extends JFrame {
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Color BACKGROUND_COLOR = new Color(75, 75, 75);
     private static final Color BUTTON_HOVER_COLOR = new Color(169, 156, 199);
+    private static final Color BG2 = new Color(255, 255, 255);
 
     private JTextField txtNome;
     private JTextField txtReferencia;
@@ -36,12 +37,12 @@ public class ProdutoForm extends JFrame {
         this.produtoEmEdicao = produto;
 
         setTitle(produto == null ? "Cadastro de Produto" : "Editar Produto");
-        getContentPane().setBackground(BACKGROUND_COLOR);
+        getContentPane().setBackground(BG2);
         setSize(450, 450);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         JPanel mainPanel = new JPanel(new GridLayout(6, 2, 10, 10));
-        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBackground(BG2);
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         add(mainPanel, BorderLayout.CENTER);
 
@@ -60,7 +61,7 @@ public class ProdutoForm extends JFrame {
         mainPanel.add(new JLabel("Referência:"));
         txtReferencia = new JTextField();
         txtReferencia.setBackground(Color.WHITE);
-        txtReferencia.setForeground(SECONDARY_COLOR);
+        txtReferencia.setForeground(BUTTON_HOVER_COLOR);
         txtReferencia.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtReferencia.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(ACCENT_COLOR, 1),

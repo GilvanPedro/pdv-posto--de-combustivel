@@ -1,5 +1,6 @@
 package com.br.pdvpostocombustivel.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -25,6 +26,7 @@ public class Preco {
     @NotNull
     @Temporal(TemporalType.TIME)
     @Column(name = "hora_alteracao")
+    @JsonFormat(pattern = "HH:mm:ss")
     private Date horaAlteracao;
 
     // construtor

@@ -20,6 +20,7 @@ public class PrecoForm extends JFrame {
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Color BACKGROUND_COLOR = new Color(75, 75, 75);
     private static final Color BUTTON_HOVER_COLOR = new Color(169, 156, 199);
+    private static final Color BG2 = new Color(255, 255, 255);
 
     private JTextField txtValor;
     private JTextField txtDataAlteracao;
@@ -38,12 +39,12 @@ public class PrecoForm extends JFrame {
         this.precoEmEdicao = preco;
 
         setTitle(preco == null ? "Cadastro de Preço" : "Editar Preço");
-        getContentPane().setBackground(BACKGROUND_COLOR);
+        getContentPane().setBackground(BG2);
         setSize(450, 400);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         JPanel mainPanel = new JPanel(new GridLayout(4, 2, 10, 10));
-        mainPanel.setBackground(BACKGROUND_COLOR);
+        mainPanel.setBackground(BG2);
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         add(mainPanel, BorderLayout.CENTER);
 
