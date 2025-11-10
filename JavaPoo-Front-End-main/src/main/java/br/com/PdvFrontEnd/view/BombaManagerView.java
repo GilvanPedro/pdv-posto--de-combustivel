@@ -39,7 +39,7 @@ public class BombaManagerView extends JFrame {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(SECONDARY_COLOR);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
         // Título com número da bomba
         JPanel headerPanel = new JPanel();

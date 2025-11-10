@@ -82,7 +82,7 @@ public class LoginView extends JFrame {
         };
         cardPanel.setOpaque(false);
         cardPanel.setLayout(new BoxLayout(cardPanel, BoxLayout.Y_AXIS));
-        cardPanel.setBorder(BorderFactory.createEmptyBorder(40, 50, 40, 50));
+        cardPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
 
         // Espaçamento superior
         cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));

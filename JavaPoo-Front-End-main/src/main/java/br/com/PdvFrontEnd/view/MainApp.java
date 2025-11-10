@@ -45,7 +45,7 @@ public class MainApp {
         button.setForeground(TEXT_COLOR);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // Efeito Hover

@@ -36,7 +36,7 @@ public class BombaListView extends JPanel {
         // Painel central com as bombas
         JPanel mainPanel = new JPanel(new GridLayout(1, 3, 30, 30));
         mainPanel.setBackground(SECONDARY_COLOR);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
         // Criar painel para cada bomba
         for (int i = 1; i <= 3; i++) {
@@ -58,7 +58,7 @@ public class BombaListView extends JPanel {
         card.setBackground(SECONDARY_COLOR);
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(PRIMARY_COLOR, 3),
-                BorderFactory.createEmptyBorder(20, 20, 20, 20)
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
 
         // Título da bomba

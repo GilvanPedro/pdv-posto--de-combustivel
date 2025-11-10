@@ -43,7 +43,7 @@ public class RegisterView extends JFrame {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(SECONDARY_COLOR);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(30, 40, 30, 40));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 30));
 
         // Título
         JLabel lblTitle = new JLabel("Cadastrar Credenciais");

@@ -34,7 +34,7 @@ public class RegisterAdminView extends JFrame {
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.setBackground(SECONDARY_COLOR);
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
 
         // Título
         JLabel lblTitle = new JLabel("Cadastro Admin");
