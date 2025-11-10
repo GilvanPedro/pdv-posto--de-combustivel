@@ -146,8 +146,8 @@ public class PrecoForm extends JFrame {
 
             if (precoEmEdicao != null) {
                 // Modo edição
-                Preco precoAtualizado = new Preco(valor, dataAlteracao, horaAlteracao);
-                precoService.updatePreco(precoEmEdicao.getId(), precoAtualizado);
+                Preco precoAtualizado = new Preco(precoEmEdicao.getId(), valor, dataAlteracao, horaAlteracao);
+                precoService.updatePreco(precoAtualizado);
             } else {
                 // Modo criação
                 Preco preco = new Preco(valor, dataAlteracao, horaAlteracao);

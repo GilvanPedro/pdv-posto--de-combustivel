@@ -11,8 +11,14 @@ public class Preco {
     private Date dataAlteracao;
     private Date horaAlteracao;
 
-    // construtor
+    // construtor para cadastro
     public Preco(BigDecimal valor, Date dataAlteracao, Date horaAlteracao) {
+        this(null, valor, dataAlteracao, horaAlteracao);
+    }
+
+    // construtor completo para edição
+    public Preco(Long id, BigDecimal valor, Date dataAlteracao, Date horaAlteracao) {
+        this.id = id;
         this.valor = valor;
         this.dataAlteracao = dataAlteracao;
         this.horaAlteracao = horaAlteracao;

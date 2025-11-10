@@ -17,22 +17,22 @@ public class PrecoService {
     public void addPreco(Preco preco) {
         try {
             PrecoRequest request = new PrecoRequest(
-                preco.getValor(),
-                preco.getDataAlteracao(),
-                preco.getHoraAlteracao()
+                    preco.getValor(),
+                    preco.getDataAlteracao(),
+                    preco.getHoraAlteracao()
             );
 
             HttpClient.post("/precos", request, PrecoResponse.class);
             JOptionPane.showMessageDialog(null,
-                "Preço adicionado com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE);
+                    "Preço adicionado com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao adicionar preço: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao adicionar preço: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -42,9 +42,9 @@ public class PrecoService {
             List<Preco> precos = new ArrayList<>();
             for (PrecoResponse response : responses) {
                 Preco preco = new Preco(
-                    response.getValor(),
-                    response.getDataAlteracao(),
-                    response.getHoraAlteracao()
+                        response.getValor(),
+                        response.getDataAlteracao(),
+                        response.getHoraAlteracao()
                 );
                 preco.setId(response.getId()); // ← ADICIONAR ID
                 precos.add(preco);
@@ -53,9 +53,9 @@ public class PrecoService {
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao listar preços: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao listar preços: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
             return new ArrayList<>();
         }
     }
@@ -64,37 +64,37 @@ public class PrecoService {
         try {
             HttpClient.delete("/precos/" + id);
             JOptionPane.showMessageDialog(null,
-                "Preço removido com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE);
+                    "Preço removido com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao remover preço: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao remover preço: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public void updatePreco(Long id, Preco preco) {
+    public void updatePreco(Preco preco) {
         try {
             PrecoRequest request = new PrecoRequest(
-                preco.getValor(),
-                preco.getDataAlteracao(),
-                preco.getHoraAlteracao()
+                    preco.getValor(),
+                    preco.getDataAlteracao(),
+                    preco.getHoraAlteracao()
             );
 
-            HttpClient.put("/precos/" + id, request, PrecoResponse.class);
+            HttpClient.put("/precos/" + preco.getId(), request, PrecoResponse.class);
             JOptionPane.showMessageDialog(null,
-                "Preço atualizado com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE);
+                    "Preço atualizado com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao atualizar preço: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao atualizar preço: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

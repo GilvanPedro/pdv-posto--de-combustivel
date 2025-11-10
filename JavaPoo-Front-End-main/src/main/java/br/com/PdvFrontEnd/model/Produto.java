@@ -10,32 +10,41 @@ public class Produto {
     private String marca;
     private boolean isCombustivel; // Para saber se aplicamos o imposto
 
-    // Construtor para o formulário de cadastro
-    public Produto(String nome, double preco, String referencia, String fornecedor, String categoria, String marca) {
+    // 🔹 Construtor padrão
+    public Produto() {
+    }
+
+    // 🔹 Construtor para o formulário de cadastro/edição (sem preço)
+    public Produto(String nome, String referencia, String fornecedor, String categoria, String marca) {
+        this(null, nome, 0.0, referencia, fornecedor, categoria, marca);
+    }
+
+    // 🔹 Construtor completo para edição (incluindo ID)
+    public Produto(Long id, String nome, String referencia, String fornecedor, String categoria, String marca) {
+        this(id, nome, 0.0, referencia, fornecedor, categoria, marca);
+    }
+
+    // 🔹 Construtor principal
+    public Produto(Long id, String nome, double preco, String referencia, String fornecedor, String categoria, String marca) {
+        this.id = id;
         this.nome = nome;
         this.preco = preco;
         this.referencia = referencia;
         this.fornecedor = fornecedor;
         this.categoria = categoria;
         this.marca = marca;
+
         // Define se é combustível com base na categoria ou nome
         if (categoria != null) {
             String catLower = categoria.toLowerCase();
-            this.isCombustivel = catLower.contains("combustivel") || catLower.contains("gasolina") || catLower.contains("etanol") || catLower.contains("diesel");
+            this.isCombustivel = catLower.contains("combustivel")
+                    || catLower.contains("gasolina")
+                    || catLower.contains("etanol")
+                    || catLower.contains("diesel");
         }
     }
 
-    // Construtor simplificado para o PDV
-    public Produto(String nome, double preco, boolean isCombustivel) {
-        this.nome = nome;
-        this.preco = preco;
-        this.isCombustivel = isCombustivel;
-    }
-
-    public Produto(String nome, String referencia, String fornecedor, String categoria, String marca) {
-    }
-
-    // Getters e Setters
+    // 🔹 Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

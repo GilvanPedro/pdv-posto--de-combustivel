@@ -61,7 +61,7 @@ public class ProdutoForm extends JFrame {
         mainPanel.add(new JLabel("Referência:"));
         txtReferencia = new JTextField();
         txtReferencia.setBackground(Color.WHITE);
-        txtReferencia.setForeground(BUTTON_HOVER_COLOR);
+        txtReferencia.setForeground(SECONDARY_COLOR);
         txtReferencia.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtReferencia.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(ACCENT_COLOR, 1),
@@ -157,13 +157,14 @@ public class ProdutoForm extends JFrame {
         if (produtoEmEdicao != null) {
             // Modo edição
             Produto produtoAtualizado = new Produto(
+                    produtoEmEdicao.getId(),
                     txtNome.getText(),
                     txtReferencia.getText(),
                     txtFornecedor.getText(),
                     txtCategoria.getText(),
                     txtMarca.getText()
             );
-            produtoService.updateProduto(produtoEmEdicao.getId(), produtoAtualizado);
+            produtoService.updateProduto(produtoAtualizado);
         } else {
             // Modo criação
             Produto produto = new Produto(
