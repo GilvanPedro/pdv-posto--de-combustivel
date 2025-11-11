@@ -7,8 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
+import java.awt.event.ActionEvent;
 
-public class ProdutoForm extends JFrame {
+public class ProdutoForm extends JPanel {
     // Cores para a nova interface
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
     private static final Color SECONDARY_COLOR = new Color(75, 75, 75);
@@ -24,78 +25,56 @@ public class ProdutoForm extends JFrame {
     private JTextField txtCategoria;
     private JTextField txtMarca;
     private ProdutoService produtoService;
-    private ProdutoList produtoList;
     private Produto produtoEmEdicao;
+    private Runnable onSaveCallback;
+    private Runnable onCancelCallback;
 
-    public ProdutoForm(ProdutoService service, ProdutoList list) {
-        this(service, list, null);
+    public ProdutoForm(ProdutoService service, Runnable onSave, Runnable onCancel) {
+        this(service, onSave, onCancel, null);
     }
 
-    public ProdutoForm(ProdutoService service, ProdutoList list, Produto produto) {
+    public ProdutoForm(ProdutoService service, Runnable onSave, Runnable onCancel, Produto produto) {
         this.produtoService = service;
-        this.produtoList = list;
+        this.onSaveCallback = onSave;
+        this.onCancelCallback = onCancel;
         this.produtoEmEdicao = produto;
 
-        setTitle(produto == null ? "Cadastro de Produto" : "Editar Produto");
-        getContentPane().setBackground(BG2);
-        setSize(450, 450);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setBackground(BACKGROUND_COLOR);
+        setLayout(new BorderLayout());
+
+        // Título do Formulário
+        JLabel header = new JLabel(produto == null ? "CADASTRO DE PRODUTO" : "EDITAR PRODUTO", SwingConstants.CENTER);
+        header.setFont(new Font("Arial Black", Font.BOLD, 20));
+        header.setOpaque(true);
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(TEXT_COLOR);
+        header.setBorder(new EmptyBorder(10, 0, 10, 0));
+        add(header, BorderLayout.NORTH);
+
         JPanel mainPanel = new JPanel(new GridLayout(6, 2, 10, 10));
-        mainPanel.setBackground(BG2);
+        mainPanel.setBackground(BG2); // Mantendo a cor de fundo original do form
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         add(mainPanel, BorderLayout.CENTER);
 
-        mainPanel.add(new JLabel("Nome:"));
-
-
-        txtNome = new JTextField();
-        txtNome.setBackground(Color.WHITE);
-        txtNome.setForeground(SECONDARY_COLOR);
-        txtNome.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtNome.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        // Campos do Formulário
+        mainPanel.add(createStyledLabel("Nome:"));
+        txtNome = createStyledTextField();
         mainPanel.add(txtNome);
 
-        mainPanel.add(new JLabel("Referência:"));
-        txtReferencia = new JTextField();
-        txtReferencia.setBackground(Color.WHITE);
-        txtReferencia.setForeground(SECONDARY_COLOR);
-        txtReferencia.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtReferencia.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Referência:"));
+        txtReferencia = createStyledTextField();
         mainPanel.add(txtReferencia);
 
-        mainPanel.add(new JLabel("Fornecedor:"));
-        txtFornecedor = new JTextField();
-        txtFornecedor.setBackground(Color.WHITE);
-        txtFornecedor.setForeground(SECONDARY_COLOR);
-        txtFornecedor.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtFornecedor.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Fornecedor:"));
+        txtFornecedor = createStyledTextField();
         mainPanel.add(txtFornecedor);
 
-        mainPanel.add(new JLabel("Categoria:"));
-        txtCategoria = new JTextField();
-        txtCategoria.setBackground(Color.WHITE);
-        txtCategoria.setForeground(SECONDARY_COLOR);
-        txtCategoria.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtCategoria.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Categoria:"));
+        txtCategoria = createStyledTextField();
         mainPanel.add(txtCategoria);
 
-        mainPanel.add(new JLabel("Marca:"));
-        txtMarca = new JTextField();
-        txtMarca.setBackground(Color.WHITE);
-        txtMarca.setForeground(SECONDARY_COLOR);
-        txtMarca.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtMarca.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Marca:"));
+        txtMarca = createStyledTextField();
         mainPanel.add(txtMarca);
 
         // Se estiver editando, preencher os campos
@@ -107,76 +86,94 @@ public class ProdutoForm extends JFrame {
             txtMarca.setText(produtoEmEdicao.getMarca());
         }
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBackground(BACKGROUND_COLOR);
         add(buttonPanel, BorderLayout.SOUTH);
 
         JButton btnSalvar = createStyledButton("Salvar");
-        JButton btnCancelar = createStyledButton("Cancelar");
-
+        btnSalvar.addActionListener(this::salvarProduto);
         buttonPanel.add(btnSalvar);
-        buttonPanel.add(btnCancelar);
 
-        btnSalvar.addActionListener(e -> salvarProduto());
-        btnCancelar.addActionListener(e -> dispose());
+        JButton btnCancelar = createStyledButton("Cancelar");
+        btnCancelar.addActionListener(e -> onCancelCallback.run());
+        buttonPanel.add(btnCancelar);
+    }
+
+    private JLabel createStyledLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setForeground(SECONDARY_COLOR); // Cor do texto para BG2 (branco)
+        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        return label;
+    }
+
+    private JTextField createStyledTextField() {
+        JTextField field = new JTextField();
+        field.setBackground(Color.WHITE);
+        field.setForeground(SECONDARY_COLOR);
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        return field;
     }
 
     private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setBackground(PRIMARY_COLOR);
-        button.setForeground(TEXT_COLOR);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 2),
-                BorderFactory.createEmptyBorder(8, 16, 8, 16)));
-        button.setFocusPainted(false);
-        button.setUI(new BasicButtonUI() {
+        JButton btn = new JButton(text);
+        btn.setBackground(PRIMARY_COLOR);
+        btn.setForeground(TEXT_COLOR);
+        btn.setFont(new Font("Arial", Font.BOLD, 13));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btn.setUI(new BasicButtonUI() {
             @Override
-            public void paint(Graphics g, JComponent c) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                AbstractButton b = (AbstractButton) c;
-                ButtonModel model = b.getModel();
+            public void installUI(JComponent c) {
+                super.installUI(c);
+                ((AbstractButton) c).setOpaque(true);
+            }
 
-                if (model.isPressed()) {
-                    g2.setColor(BUTTON_HOVER_COLOR.darker());
-                } else if (model.isRollover()) {
-                    g2.setColor(BUTTON_HOVER_COLOR);
-                } else {
-                    g2.setColor(b.getBackground());
-                }
-                g2.fillRect(0, 0, b.getWidth(), b.getHeight());
-                g2.dispose();
-                super.paint(g, c);
+            @Override
+            protected void paintButtonPressed(Graphics g, AbstractButton b) {
+                g.setColor(BUTTON_HOVER_COLOR);
+                g.fillRect(0, 0, b.getWidth(), b.getHeight());
             }
         });
-        return button;
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(BUTTON_HOVER_COLOR);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(PRIMARY_COLOR);
+            }
+        });
+        return btn;
     }
 
-    private void salvarProduto() {
-        if (produtoEmEdicao != null) {
-            // Modo edição
-            Produto produtoAtualizado = new Produto(
-                    produtoEmEdicao.getId(),
+    private void salvarProduto(ActionEvent e) {
+        try {
+            Produto novoProduto = new Produto(
                     txtNome.getText(),
                     txtReferencia.getText(),
                     txtFornecedor.getText(),
                     txtCategoria.getText(),
                     txtMarca.getText()
             );
-            produtoService.updateProduto(produtoAtualizado);
-        } else {
-            // Modo criação
-            Produto produto = new Produto(
-                    txtNome.getText(),
-                    txtReferencia.getText(),
-                    txtFornecedor.getText(),
-                    txtCategoria.getText(),
-                    txtMarca.getText()
-            );
-            produtoService.addProduto(produto);
+
+            if (produtoEmEdicao != null) {
+                // Modo edição
+                novoProduto.setId(produtoEmEdicao.getId());
+                produtoService.updateProduto(novoProduto);
+                JOptionPane.showMessageDialog(this, "Produto atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // Modo criação
+                produtoService.addProduto(novoProduto);
+                JOptionPane.showMessageDialog(this, "Produto adicionado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            onSaveCallback.run();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar produto: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-        produtoList.atualizarTabela();
-        dispose();
     }
 }

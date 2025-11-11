@@ -2,6 +2,7 @@ package br.com.PdvFrontEnd.view;
 
 import br.com.PdvFrontEnd.model.Pessoa;
 import br.com.PdvFrontEnd.service.PessoaService;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
@@ -12,24 +13,33 @@ import java.util.List;
 public class PessoaList extends JPanel {
     private final PessoaService pessoaService;
     private JTable table;
+    private JPanel cardPanel;
+    private final static String LIST_VIEW = "Lista";
+    private final static String FORM_VIEW = "Formulário";
 
-    // Cores para a nova interface
+    // Cores
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
     private static final Color SECONDARY_COLOR = new Color(75, 75, 75);
-    private static final Color ACCENT_COLOR = new Color(100, 80, 180);
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Color BACKGROUND_COLOR = new Color(75, 75, 75);
     private static final Color TABLE_HEADER_COLOR = new Color(52, 73, 94);
     private static final Color TABLE_SELECTION_COLOR = new Color(142, 68, 173);
-    private static final Color BUTTON_HOVER_COLOR = new Color(169, 156, 199);
 
     public PessoaList(PessoaService service) {
         this.pessoaService = service;
+        setLayout(new BorderLayout());
+        setBackground(BACKGROUND_COLOR);
         initComponents();
+        atualizarTabela();
     }
 
     private void initComponents() {
-        // Removidas configurações de JFrame
+        cardPanel = new JPanel(new CardLayout());
+        cardPanel.add(createListView(), LIST_VIEW);
+        add(cardPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel createListView() {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBackground(BACKGROUND_COLOR);
         mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -65,7 +75,6 @@ public class PessoaList extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         tablePanel.add(scrollPane, BorderLayout.CENTER);
-
         mainPanel.add(tablePanel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
@@ -80,17 +89,14 @@ public class PessoaList extends JPanel {
         buttonPanel.add(btnEditar);
         buttonPanel.add(btnRemover);
         buttonPanel.add(btnAtualizar);
-
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        add(mainPanel);
-
-        btnAdicionar.addActionListener(this::adicionarPessoa);
+        btnAdicionar.addActionListener(e -> exibirFormulario(null));
         btnEditar.addActionListener(this::editarPessoa);
         btnRemover.addActionListener(this::removerPessoa);
         btnAtualizar.addActionListener(e -> atualizarTabela());
 
-        atualizarTabela();
+        return mainPanel;
     }
 
     private JButton criarBotao(String texto, Color fundo, Color textoCor) {
@@ -99,137 +105,77 @@ public class PessoaList extends JPanel {
         btn.setForeground(textoCor);
         btn.setFont(new Font("Arial", Font.BOLD, 13));
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 2),
-                new EmptyBorder(8, 16, 8, 16)
-        ));
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(BUTTON_HOVER_COLOR);
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(fundo);
-            }
-        });
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         return btn;
     }
 
-    private void adicionarPessoa(ActionEvent e) {
-        JTextField nomeField = new JTextField();
-        JTextField cpfField = new JTextField();
-        JTextField dataField = new JTextField();
-        String[] tipos = {"FISICA", "JURIDICA"};
-        JComboBox<String> tipoBox = new JComboBox<>(tipos);
-
-        JPanel form = new JPanel(new GridLayout(4, 2, 10, 10));
-        form.add(new JLabel("Nome:"));
-        form.add(nomeField);
-        form.add(new JLabel("CPF:"));
-        form.add(cpfField);
-        form.add(new JLabel("Data de Nascimento (YYYY-MM-DD):"));
-        form.add(dataField);
-        form.add(new JLabel("Tipo:"));
-        form.add(tipoBox);
-
-        int result = JOptionPane.showConfirmDialog(this, form, "Nova Pessoa", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            String nome = nomeField.getText();
-            String cpf = cpfField.getText();
-            String dataNasc = dataField.getText();
-            String tipo = (String) tipoBox.getSelectedItem();
-
-            if (!nome.isEmpty() && !cpf.isEmpty() && !dataNasc.isEmpty() && tipo != null) {
-                pessoaService.addPessoa(new Pessoa(nome, cpf, dataNasc, tipo));
-                atualizarTabela();
-            } else {
-                JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Aviso", JOptionPane.WARNING_MESSAGE);
+    public void atualizarTabela() {
+        try {
+            List<Pessoa> pessoas = pessoaService.listPessoas();
+            DefaultTableModel model = new DefaultTableModel(new Object[]{"ID", "Nome", "CTPS", "Data Nasc.", "Tipo"}, 0);
+            for (Pessoa p : pessoas) {
+                model.addRow(new Object[]{p.getId(), p.getNome(), p.getCpf(), p.getDataNascimento(), p.getTipo()});
             }
+            table.setModel(model);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar pessoas: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void exibirFormulario(Pessoa pessoa) {
+        if (cardPanel.getComponentCount() > 1) {
+            cardPanel.remove(1);
+        }
+
+        Runnable onSave = () -> {
+            atualizarTabela();
+            exibirLista();
+        };
+        Runnable onCancel = this::exibirLista;
+
+        PessoaForm form = new PessoaForm(pessoaService, onSave, onCancel, pessoa);
+        cardPanel.add(form, FORM_VIEW);
+
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, FORM_VIEW);
+    }
+
+    private void exibirLista() {
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, LIST_VIEW);
     }
 
     private void editarPessoa(ActionEvent e) {
         int selectedRow = table.getSelectedRow();
-        if (selectedRow >= 0) {
-            // Pegar a pessoa da lista usando o índice da linha
-            List<Pessoa> pessoas = pessoaService.listPessoas();
-            if (selectedRow < pessoas.size()) {
-                Pessoa pessoa = pessoas.get(selectedRow);
-
-                JTextField nomeField = new JTextField(pessoa.getNome());
-                JTextField cpfField = new JTextField(pessoa.getCpf());
-                JTextField dataField = new JTextField(pessoa.getDataNascimento());
-                String[] tipos = {"FISICA", "JURIDICA"};
-                JComboBox<String> tipoBox = new JComboBox<>(tipos);
-                tipoBox.setSelectedItem(pessoa.getTipo());
-
-                JPanel form = new JPanel(new GridLayout(4, 2, 10, 10));
-                form.add(new JLabel("Nome:"));
-                form.add(nomeField);
-                form.add(new JLabel("CPF:"));
-                form.add(cpfField);
-                form.add(new JLabel("Data de Nascimento (YYYY-MM-DD):"));
-                form.add(dataField);
-                form.add(new JLabel("Tipo:"));
-                form.add(tipoBox);
-
-                int result = JOptionPane.showConfirmDialog(this, form, "Editar Pessoa", JOptionPane.OK_CANCEL_OPTION);
-                if (result == JOptionPane.OK_OPTION) {
-                    String nome = nomeField.getText();
-                    String cpf = cpfField.getText();
-                    String dataNasc = dataField.getText();
-                    String tipo = (String) tipoBox.getSelectedItem();
-
-                    if (!nome.isEmpty() && !cpf.isEmpty() && !dataNasc.isEmpty() && tipo != null) {
-                        pessoa.setNome(nome);
-                        pessoa.setCpf(cpf);
-                        pessoa.setDataNascimento(dataNasc);
-                        pessoa.setTipo(tipo);
-                        pessoaService.updatePessoa(pessoa.getId(), pessoa);
-                        atualizarTabela();
-                    } else {
-                        JOptionPane.showMessageDialog(this, "Preencha todos os campos!", "Aviso", JOptionPane.WARNING_MESSAGE);
-                    }
-                }
+        if (selectedRow != -1) {
+            try {
+                Long pessoaId = (Long) table.getValueAt(selectedRow, 0);
+                Pessoa pessoa = pessoaService.getPessoaById(pessoaId);
+                exibirFormulario(pessoa);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao buscar pessoa para edição: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Selecione uma pessoa para editar!");
+            JOptionPane.showMessageDialog(this, "Selecione uma pessoa para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
         }
     }
 
     private void removerPessoa(ActionEvent e) {
         int selectedRow = table.getSelectedRow();
-        if (selectedRow >= 0) {
-            // Pegar a pessoa da lista usando o índice da linha
-            List<Pessoa> pessoas = pessoaService.listPessoas();
-            if (selectedRow < pessoas.size()) {
-                Pessoa pessoa = pessoas.get(selectedRow);
-                if (pessoa.getId() != null) {
-                    pessoaService.removePessoa(pessoa.getId());
+        if (selectedRow != -1) {
+            try {
+                Long pessoaId = (Long) table.getValueAt(selectedRow, 0);
+                String nome = (String) table.getValueAt(selectedRow, 1);
+                int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja remover " + nome + "?", "Confirmação", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    pessoaService.removePessoa(pessoaId);
                     atualizarTabela();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Pessoa não possui ID válido!");
                 }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao remover pessoa: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(this, "Selecione uma pessoa para remover!");
+            JOptionPane.showMessageDialog(this, "Selecione uma pessoa para remover.", "Aviso", JOptionPane.WARNING_MESSAGE);
         }
-    }
-
-    void atualizarTabela() {
-        String[] colunas = {"Nome", "CPF", "Data de Nascimento", "Tipo"};
-        DefaultTableModel model = new DefaultTableModel(colunas, 0);
-
-        for (Pessoa p : pessoaService.listPessoas()) {
-            model.addRow(new Object[]{
-                    p.getNome(),
-                    p.getCpf(),
-                    p.getDataNascimento(),
-                    p.getTipo()
-            });
-        }
-
-        table.setModel(model);
     }
 }

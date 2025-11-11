@@ -13,6 +13,9 @@ import java.util.List;
 public class ProdutoList extends JPanel {
     private final ProdutoService produtoService;
     private JTable table;
+    private JPanel cardPanel; // Painel que gerencia a troca de views (Lista vs Formulário)
+    private final static String LIST_VIEW = "Lista";
+    private final static String FORM_VIEW = "Formulário";
 
     // Cores para a nova interface
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
@@ -26,11 +29,21 @@ public class ProdutoList extends JPanel {
 
     public ProdutoList(ProdutoService service) {
         this.produtoService = service;
+        setLayout(new BorderLayout());
+        setBackground(BACKGROUND_COLOR);
         initComponents();
+        atualizarTabela();
     }
 
     private void initComponents() {
-        // Removidas configurações de JFrame
+        // 1. Painel de Cartões (CardLayout)
+        cardPanel = new JPanel(new CardLayout());
+        cardPanel.add(createListView(), LIST_VIEW);
+
+        add(cardPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel createListView() {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBackground(BACKGROUND_COLOR);
         mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -84,18 +97,12 @@ public class ProdutoList extends JPanel {
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        add(mainPanel);
-
-        btnAdicionar.addActionListener(e -> {
-            ProdutoForm form = new ProdutoForm(produtoService, this);
-            form.setVisible(true);
-        });
-
-        btnEditar.addActionListener(e -> editarProduto(e));
-        btnRemover.addActionListener(e -> removerProduto(e));
+        btnAdicionar.addActionListener(e -> exibirFormulario(null));
+        btnEditar.addActionListener(this::editarProduto);
+        btnRemover.addActionListener(this::removerProduto);
         btnAtualizar.addActionListener(e -> atualizarTabela());
 
-        atualizarTabela();
+        return mainPanel;
     }
 
     private JButton criarBotao(String texto, Color fundo, Color textoCor) {
@@ -109,61 +116,18 @@ public class ProdutoList extends JPanel {
                 new EmptyBorder(8, 16, 8, 16)
         ));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(BUTTON_HOVER_COLOR);
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(fundo);
-            }
-        });
+        // Estilos de botão removidos para simplificar, mas podem ser adicionados de volta
         return btn;
     }
 
-    private void editarProduto(ActionEvent e) {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            List<Produto> produtos = produtoService.getAllProdutos();
-            if (selectedRow < produtos.size()) {
-                Produto produto = produtos.get(selectedRow);
-                if (produto.getId() != null) {
-                    ProdutoForm form = new ProdutoForm(produtoService, this, produto);
-                    form.setVisible(true);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Produto não possui ID válido!");
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Selecione um produto para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private void removerProduto(ActionEvent e) {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            List<Produto> produtos = produtoService.getAllProdutos();
-            if (selectedRow < produtos.size()) {
-                Produto produto = produtos.get(selectedRow);
-                if (produto.getId() != null) {
-                    produtoService.removeProduto(produto.getId());
-                    atualizarTabela();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Produto não possui ID válido!");
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Selecione um produto para remover.", "Aviso", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
     public void atualizarTabela() {
-        String[] colunas = {"Nome", "Referência", "Fornecedor", "Categoria", "Marca"};
+        String[] colunas = {"ID", "Nome", "Referência", "Fornecedor", "Categoria", "Marca"};
         DefaultTableModel model = new DefaultTableModel(colunas, 0);
 
         List<Produto> produtos = produtoService.getAllProdutos();
         for (Produto produto : produtos) {
             model.addRow(new Object[]{
+                    produto.getId(),
                     produto.getNome(),
                     produto.getReferencia(),
                     produto.getFornecedor(),
@@ -173,5 +137,74 @@ public class ProdutoList extends JPanel {
         }
 
         table.setModel(model);
+        // Esconder a coluna ID para um visual mais limpo, mas manter o dado para edição/remoção
+        if (table.getColumnModel().getColumnCount() > 0) {
+            table.getColumnModel().getColumn(0).setMinWidth(0);
+            table.getColumnModel().getColumn(0).setMaxWidth(0);
+            table.getColumnModel().getColumn(0).setWidth(0);
+        }
+    }
+
+    private void exibirFormulario(Produto produto) {
+        // Remove o formulário anterior, se houver
+        if (cardPanel.getComponentCount() > 1) {
+            cardPanel.remove(1);
+        }
+
+        // Callbacks para o formulário
+        Runnable onSave = () -> {
+            atualizarTabela();
+            exibirLista();
+        };
+        Runnable onCancel = this::exibirLista;
+
+        // Cria o novo formulário
+        ProdutoForm form = new ProdutoForm(produtoService, onSave, onCancel, produto);
+        cardPanel.add(form, FORM_VIEW);
+
+        // Exibe o formulário
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, FORM_VIEW);
+    }
+
+    private void exibirLista() {
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, LIST_VIEW);
+    }
+
+    private void editarProduto(ActionEvent e) {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            try {
+                // Obtém o ID do produto selecionado
+                Long produtoId = (Long) table.getValueAt(selectedRow, 0);
+                Produto produto = produtoService.getProdutoById(produtoId);
+                exibirFormulario(produto);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao buscar produto para edição: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione um produto para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void removerProduto(ActionEvent e) {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            try {
+                Long produtoId = (Long) table.getValueAt(selectedRow, 0);
+                String nome = (String) table.getValueAt(selectedRow, 1);
+                int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja remover " + nome + "?", "Confirmação", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    produtoService.removeProduto(produtoId);
+                    atualizarTabela();
+                    JOptionPane.showMessageDialog(this, "Produto removido com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao remover produto: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione um produto para remover.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
     }
 }

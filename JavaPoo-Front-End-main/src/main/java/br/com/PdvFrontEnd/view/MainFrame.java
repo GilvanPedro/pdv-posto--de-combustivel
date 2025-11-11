@@ -24,7 +24,7 @@ public class MainFrame extends JFrame {
     private void initComponents() {
         setTitle("Gerenciamento PDV - " + (isAdmin ? "ADMINISTRADOR" : "FRENTISTA"));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 770); // Aumentar o tamanho para acomodar o conteúdo das abas
+        setSize(1000, 800); // Aumentar o tamanho para acomodar o conteúdo das abas
         setLocationRelativeTo(null);
 
         // Painel principal com BorderLayout
@@ -43,12 +43,12 @@ public class MainFrame extends JFrame {
         tabbedPane.setOpaque(true);
 
         addTabs();
-        
+
         // Para centralizar as abas, vamos usar um JPanel com FlowLayout.CENTER
         JPanel tabWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         tabWrapper.setBackground(SECONDARY_COLOR.darker());
         tabWrapper.add(tabbedPane);
-        
+
         mainPanel.add(tabWrapper, BorderLayout.CENTER);
 
         // 3. Painel Inferior (Footer)
@@ -82,12 +82,12 @@ public class MainFrame extends JFrame {
 
         userPanel.add(lblUser, BorderLayout.WEST);
         userPanel.add(btnLogout, BorderLayout.EAST);
-        
+
         topPanel.add(userPanel, BorderLayout.NORTH);
 
         // Painel para as abas (JTabbedPane) - A centralização das abas é feita no JTabbedPane em initComponents
         // Aqui, apenas retorno o painel superior. O JTabbedPane é adicionado em initComponents.
-        
+
         return topPanel;
     }
 

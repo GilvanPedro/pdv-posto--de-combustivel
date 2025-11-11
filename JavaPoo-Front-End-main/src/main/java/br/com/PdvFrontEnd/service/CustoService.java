@@ -17,25 +17,25 @@ public class CustoService {
     public void addCusto(Custo custo) {
         try {
             CustoRequest request = new CustoRequest(
-                custo.getImposto(),
-                custo.getFrete(),
-                custo.getCustoVariavel(),
-                custo.getCustoFixo(),
-                custo.getMargemLucro(),
-                custo.getDataProcessamento()
+                    custo.getImposto(),
+                    custo.getFrete(),
+                    custo.getCustoVariavel(),
+                    custo.getCustoFixo(),
+                    custo.getMargemLucro(),
+                    custo.getDataProcessamento()
             );
 
             HttpClient.post("/custos", request, CustoResponse.class);
             JOptionPane.showMessageDialog(null,
-                "Custo adicionado com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE);
+                    "Custo adicionado com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao adicionar custo: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao adicionar custo: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -45,13 +45,13 @@ public class CustoService {
             List<Custo> custos = new ArrayList<>();
             for (CustoResponse response : responses) {
                 Custo custo = new Custo(
-                    response.getId(), // PASSAR ID NO CONSTRUTOR
-                    response.getImposto(),
-                    response.getFrete(),
-                    response.getCustoVariavel(),
-                    response.getCustoFixo(),
-                    response.getMargemLucro(),
-                    response.getDataProcessamento()
+                        response.getId(),
+                        response.getImposto(),
+                        response.getFrete(),
+                        response.getCustoVariavel(),
+                        response.getCustoFixo(),
+                        response.getMargemLucro(),
+                        response.getDataProcessamento()
                 );
                 custos.add(custo);
             }
@@ -59,9 +59,9 @@ public class CustoService {
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao listar custos: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao listar custos: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
             return new ArrayList<>();
         }
     }
@@ -70,40 +70,63 @@ public class CustoService {
         try {
             HttpClient.delete("/custos/" + id);
             JOptionPane.showMessageDialog(null,
-                "Custo removido com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE);
+                    "Custo removido com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao remover custo: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao remover custo: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public Custo getCustoById(Long id) {
+        try {
+            CustoResponse response = HttpClient.get("/custos/" + id, CustoResponse.class);
+            Custo custo = new Custo(
+                    response.getId(),
+                    response.getImposto(),
+                    response.getFrete(),
+                    response.getCustoVariavel(),
+                    response.getCustoFixo(),
+                    response.getMargemLucro(),
+                    response.getDataProcessamento()
+            );
+            return custo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Erro ao buscar custo por ID: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
         }
     }
 
     public void updateCusto(Long id, Custo custo) {
         try {
             CustoRequest request = new CustoRequest(
-                custo.getImposto(),
-                custo.getFrete(),
-                custo.getCustoVariavel(),
-                custo.getCustoFixo(),
-                custo.getMargemLucro(),
-                custo.getDataProcessamento()
+                    custo.getImposto(),
+                    custo.getFrete(),
+                    custo.getCustoVariavel(),
+                    custo.getCustoFixo(),
+                    custo.getMargemLucro(),
+                    custo.getDataProcessamento()
             );
 
             HttpClient.put("/custos/" + id, request, CustoResponse.class);
             JOptionPane.showMessageDialog(null,
-                "Custo atualizado com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE);
+                    "Custo atualizado com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao atualizar custo: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao atualizar custo: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

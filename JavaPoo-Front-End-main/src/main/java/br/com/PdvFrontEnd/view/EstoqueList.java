@@ -13,6 +13,9 @@ import java.util.List;
 public class EstoqueList extends JPanel {
     private final EstoqueService estoqueService;
     private JTable table;
+    private JPanel cardPanel; // Painel que gerencia a troca de views (Lista vs Formulário)
+    private final static String LIST_VIEW = "Lista";
+    private final static String FORM_VIEW = "Formulário";
 
     // Cores para a nova interface
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
@@ -26,11 +29,21 @@ public class EstoqueList extends JPanel {
 
     public EstoqueList(EstoqueService service) {
         this.estoqueService = service;
+        setLayout(new BorderLayout());
+        setBackground(BACKGROUND_COLOR);
         initComponents();
+        atualizarTabela();
     }
 
     private void initComponents() {
-        // Removidas configurações de JFrame
+        // 1. Painel de Cartões (CardLayout)
+        cardPanel = new JPanel(new CardLayout());
+        cardPanel.add(createListView(), LIST_VIEW);
+
+        add(cardPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel createListView() {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBackground(BACKGROUND_COLOR);
         mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -84,18 +97,12 @@ public class EstoqueList extends JPanel {
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        add(mainPanel);
-
-        btnAdicionar.addActionListener(e -> {
-            EstoqueForm form = new EstoqueForm(estoqueService, this);
-            form.setVisible(true);
-        });
-
-        btnEditar.addActionListener(e -> editarEstoque(e));
-        btnRemover.addActionListener(e -> removerEstoque(e));
+        btnAdicionar.addActionListener(e -> exibirFormulario(null));
+        btnEditar.addActionListener(this::editarEstoque);
+        btnRemover.addActionListener(this::removerEstoque);
         btnAtualizar.addActionListener(e -> atualizarTabela());
 
-        atualizarTabela();
+        return mainPanel;
     }
 
     private JButton criarBotao(String texto, Color fundo, Color textoCor) {
@@ -109,61 +116,18 @@ public class EstoqueList extends JPanel {
                 new EmptyBorder(8, 16, 8, 16)
         ));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(BUTTON_HOVER_COLOR);
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(fundo);
-            }
-        });
+        // Estilos de botão removidos para simplificar, mas podem ser adicionados de volta
         return btn;
     }
 
-    private void editarEstoque(ActionEvent e) {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            List<Estoque> estoques = estoqueService.getAllEstoques();
-            if (selectedRow < estoques.size()) {
-                Estoque estoque = estoques.get(selectedRow);
-                if (estoque.getId() != null) {
-                    EstoqueForm form = new EstoqueForm(estoqueService, this, estoque);
-                    form.setVisible(true);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Estoque não possui ID válido!");
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Selecione um estoque para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private void removerEstoque(ActionEvent e) {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            List<Estoque> estoques = estoqueService.getAllEstoques();
-            if (selectedRow < estoques.size()) {
-                Estoque estoque = estoques.get(selectedRow);
-                if (estoque.getId() != null) {
-                    estoqueService.removeEstoque(estoque.getId());
-                    atualizarTabela();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Estoque não possui ID válido!");
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Selecione um estoque para remover.", "Aviso", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
     public void atualizarTabela() {
-        String[] colunas = {"Quantidade", "Local Tanque", "Local Endereço", "Lote Fabricação", "Data Validade"};
+        String[] colunas = {"ID", "Quantidade", "Local Tanque", "Local Endereço", "Lote Fabricação", "Data Validade"};
         DefaultTableModel model = new DefaultTableModel(colunas, 0);
 
         List<Estoque> estoques = estoqueService.getAllEstoques();
         for (Estoque estoque : estoques) {
             model.addRow(new Object[]{
+                    estoque.getId(),
                     estoque.getQuantidade(),
                     estoque.getLocalTanque(),
                     estoque.getLocalEndereco(),
@@ -173,5 +137,73 @@ public class EstoqueList extends JPanel {
         }
 
         table.setModel(model);
+        // Esconder a coluna ID para um visual mais limpo, mas manter o dado para edição/remoção
+        if (table.getColumnModel().getColumnCount() > 0) {
+            table.getColumnModel().getColumn(0).setMinWidth(0);
+            table.getColumnModel().getColumn(0).setMaxWidth(0);
+            table.getColumnModel().getColumn(0).setWidth(0);
+        }
+    }
+
+    private void exibirFormulario(Estoque estoque) {
+        // Remove o formulário anterior, se houver
+        if (cardPanel.getComponentCount() > 1) {
+            cardPanel.remove(1);
+        }
+
+        // Callbacks para o formulário
+        Runnable onSave = () -> {
+            atualizarTabela();
+            exibirLista();
+        };
+        Runnable onCancel = this::exibirLista;
+
+        // Cria o novo formulário
+        EstoqueForm form = new EstoqueForm(estoqueService, onSave, onCancel, estoque);
+        cardPanel.add(form, FORM_VIEW);
+
+        // Exibe o formulário
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, FORM_VIEW);
+    }
+
+    private void exibirLista() {
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, LIST_VIEW);
+    }
+
+    private void editarEstoque(ActionEvent e) {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            try {
+                // Obtém o ID do estoque selecionado
+                Long estoqueId = (Long) table.getValueAt(selectedRow, 0);
+                Estoque estoque = estoqueService.getEstoqueById(estoqueId);
+                exibirFormulario(estoque);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao buscar estoque para edição: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione um estoque para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void removerEstoque(ActionEvent e) {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            try {
+                Long estoqueId = (Long) table.getValueAt(selectedRow, 0);
+                int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja remover este item de estoque?", "Confirmação", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    estoqueService.removeEstoque(estoqueId);
+                    atualizarTabela();
+                    JOptionPane.showMessageDialog(this, "Estoque removido com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao remover estoque: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione um estoque para remover.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
     }
 }

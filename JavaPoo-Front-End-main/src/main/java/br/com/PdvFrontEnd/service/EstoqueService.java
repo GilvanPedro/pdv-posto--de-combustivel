@@ -17,24 +17,24 @@ public class EstoqueService {
     public void addEstoque(Estoque estoque) {
         try {
             EstoqueRequest request = new EstoqueRequest(
-                estoque.getQuantidade(),
-                estoque.getLocalTanque(),
-                estoque.getLocalEndereco(),
-                estoque.getLoteFabricacao(),
-                estoque.getDataValidade()
+                    estoque.getQuantidade(),
+                    estoque.getLocalTanque(),
+                    estoque.getLocalEndereco(),
+                    estoque.getLoteFabricacao(),
+                    estoque.getDataValidade()
             );
 
             HttpClient.post("/estoques", request, EstoqueResponse.class);
             JOptionPane.showMessageDialog(null,
-                "Estoque adicionado com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE);
+                    "Estoque adicionado com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao adicionar estoque: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao adicionar estoque: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -44,12 +44,12 @@ public class EstoqueService {
             List<Estoque> estoques = new ArrayList<>();
             for (EstoqueResponse response : responses) {
                 Estoque estoque = new Estoque(
-                    response.getId(), // PASSAR ID NO CONSTRUTOR
-                    response.getQuantidade(),
-                    response.getLocalTanque(),
-                    response.getLocalEndereco(),
-                    response.getLoteFabricacao(),
-                    response.getDataValidade()
+                        response.getId(),
+                        response.getQuantidade(),
+                        response.getLocalTanque(),
+                        response.getLocalEndereco(),
+                        response.getLoteFabricacao(),
+                        response.getDataValidade()
                 );
                 estoques.add(estoque);
             }
@@ -57,9 +57,9 @@ public class EstoqueService {
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao listar estoques: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao listar estoques: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
             return new ArrayList<>();
         }
     }
@@ -68,39 +68,61 @@ public class EstoqueService {
         try {
             HttpClient.delete("/estoques/" + id);
             JOptionPane.showMessageDialog(null,
-                "Estoque removido com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE);
+                    "Estoque removido com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao remover estoque: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao remover estoque: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public Estoque getEstoqueById(Long id) {
+        try {
+            EstoqueResponse response = HttpClient.get("/estoques/" + id, EstoqueResponse.class);
+            Estoque estoque = new Estoque(
+                    response.getId(),
+                    response.getQuantidade(),
+                    response.getLocalTanque(),
+                    response.getLocalEndereco(),
+                    response.getLoteFabricacao(),
+                    response.getDataValidade()
+            );
+            return estoque;
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Erro ao buscar estoque por ID: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
         }
     }
 
     public void updateEstoque(Long id, Estoque estoque) {
         try {
             EstoqueRequest request = new EstoqueRequest(
-                estoque.getQuantidade(),
-                estoque.getLocalTanque(),
-                estoque.getLocalEndereco(),
-                estoque.getLoteFabricacao(),
-                estoque.getDataValidade()
+                    estoque.getQuantidade(),
+                    estoque.getLocalTanque(),
+                    estoque.getLocalEndereco(),
+                    estoque.getLoteFabricacao(),
+                    estoque.getDataValidade()
             );
 
             HttpClient.put("/estoques/" + id, request, EstoqueResponse.class);
             JOptionPane.showMessageDialog(null,
-                "Estoque atualizado com sucesso!",
-                "Sucesso",
-                JOptionPane.INFORMATION_MESSAGE);
+                    "Estoque atualizado com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
-                "Erro ao atualizar estoque: " + e.getMessage(),
-                "Erro",
-                JOptionPane.ERROR_MESSAGE);
+                    "Erro ao atualizar estoque: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

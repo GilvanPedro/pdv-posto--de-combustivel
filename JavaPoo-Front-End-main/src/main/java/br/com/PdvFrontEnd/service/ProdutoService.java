@@ -50,7 +50,7 @@ public class ProdutoService {
                         response.getCategoria(),
                         response.getMarca()
                 );
-                produto.setId(response.getId()); // ← ADICIONAR ID
+                produto.setId(response.getId());
                 produtos.add(produto);
             }
             return produtos;
@@ -77,6 +77,28 @@ public class ProdutoService {
                     "Erro ao remover produto: " + e.getMessage(),
                     "Erro",
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public Produto getProdutoById(Long id) {
+        try {
+            ProdutoResponse response = HttpClient.get("/produtos/" + id, ProdutoResponse.class);
+            Produto produto = new Produto(
+                    response.getNome(),
+                    response.getReferencia(),
+                    response.getFornecedor(),
+                    response.getCategoria(),
+                    response.getMarca()
+            );
+            produto.setId(response.getId());
+            return produto;
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Erro ao buscar produto por ID: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
         }
     }
 

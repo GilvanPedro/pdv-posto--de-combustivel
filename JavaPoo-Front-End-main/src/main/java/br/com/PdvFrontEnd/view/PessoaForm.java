@@ -7,9 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
+import java.awt.event.ActionEvent;
 
-public class PessoaForm extends JFrame {
-    // Cores para a nova interface
+public class PessoaForm extends JPanel {
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
     private static final Color SECONDARY_COLOR = new Color(75, 75, 75);
     private static final Color ACCENT_COLOR = new Color(100, 80, 180);
@@ -22,71 +22,52 @@ public class PessoaForm extends JFrame {
     private JTextField txtDataNascimento;
     private JComboBox<String> comboTipo;
     private PessoaService pessoaService;
-    private PessoaList pessoaList;
     private Pessoa pessoaEmEdicao;
+    private Runnable onSaveCallback;
+    private Runnable onCancelCallback;
 
-    public PessoaForm(PessoaService service, PessoaList list) {
-        this(service, list, null);
+    public PessoaForm(PessoaService service, Runnable onSave, Runnable onCancel) {
+        this(service, onSave, onCancel, null);
     }
 
-    public PessoaForm(PessoaService service, PessoaList list, Pessoa pessoa) {
+    public PessoaForm(PessoaService service, Runnable onSave, Runnable onCancel, Pessoa pessoa) {
         this.pessoaService = service;
-        this.pessoaList = list;
+        this.onSaveCallback = onSave;
+        this.onCancelCallback = onCancel;
         this.pessoaEmEdicao = pessoa;
 
-        setTitle(pessoa == null ? "Cadastro de Pessoa" : "Editar Pessoa");
-        getContentPane().setBackground(BACKGROUND_COLOR);
-        setSize(450, 400);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setBackground(BACKGROUND_COLOR);
+        setLayout(new BorderLayout());
+
+        JLabel header = new JLabel(pessoa == null ? "CADASTRO DE PESSOA" : "EDITAR PESSOA", SwingConstants.CENTER);
+        header.setFont(new Font("Arial Black", Font.BOLD, 20));
+        header.setOpaque(true);
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(TEXT_COLOR);
+        header.setBorder(new EmptyBorder(10, 0, 10, 0));
+        add(header, BorderLayout.NORTH);
+
         JPanel mainPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         mainPanel.setBackground(BACKGROUND_COLOR);
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         add(mainPanel, BorderLayout.CENTER);
 
-        mainPanel.add(new JLabel("Nome:"));
-
-
-        txtNome = new JTextField();
-        txtNome.setBackground(Color.WHITE);
-        txtNome.setForeground(SECONDARY_COLOR);
-        txtNome.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtNome.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Nome:"));
+        txtNome = createStyledTextField();
         mainPanel.add(txtNome);
 
-        mainPanel.add(new JLabel("CTPS:"));
-        txtCtps = new JTextField();
-        txtCtps.setBackground(Color.WHITE);
-        txtCtps.setForeground(SECONDARY_COLOR);
-        txtCtps.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtCtps.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("CTPS:"));
+        txtCtps = createStyledTextField();
         mainPanel.add(txtCtps);
 
-        mainPanel.add(new JLabel("Data de Nascimento:"));
-        txtDataNascimento = new JTextField();
-        txtDataNascimento.setBackground(Color.WHITE);
-        txtDataNascimento.setForeground(SECONDARY_COLOR);
-        txtDataNascimento.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDataNascimento.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Data de Nascimento:"));
+        txtDataNascimento = createStyledTextField();
         mainPanel.add(txtDataNascimento);
 
-        mainPanel.add(new JLabel("Tipo:"));
-        comboTipo = new JComboBox<>(new String[]{"Cliente", "Fornecedor"});
-        comboTipo.setBackground(Color.WHITE);
-        comboTipo.setForeground(SECONDARY_COLOR);
-        comboTipo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        comboTipo.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Tipo:"));
+        comboTipo = createStyledComboBox(new String[]{"Cliente", "Fornecedor"});
         mainPanel.add(comboTipo);
 
-        // Se estiver editando, preencher os campos
         if (pessoaEmEdicao != null) {
             txtNome.setText(pessoaEmEdicao.getNome());
             txtCtps.setText(pessoaEmEdicao.getCpf());
@@ -94,75 +75,98 @@ public class PessoaForm extends JFrame {
             comboTipo.setSelectedItem(pessoaEmEdicao.getTipo());
         }
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBackground(BACKGROUND_COLOR);
         add(buttonPanel, BorderLayout.SOUTH);
 
-        JButton btnSalvar = createStyledButton("Salvar");
-        JButton btnCancelar = createStyledButton("Cancelar");
-
+        JButton btnSalvar = createStyledButton("Salvar", PRIMARY_COLOR);
+        btnSalvar.addActionListener(this::salvarPessoa);
         buttonPanel.add(btnSalvar);
-        buttonPanel.add(btnCancelar);
 
-        btnSalvar.addActionListener(e -> salvarPessoa());
-        btnCancelar.addActionListener(e -> dispose());
+        JButton btnCancelar = createStyledButton("Cancelar", SECONDARY_COLOR);
+        btnCancelar.addActionListener(e -> onCancelCallback.run());
+        buttonPanel.add(btnCancelar);
     }
 
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setBackground(PRIMARY_COLOR);
-        button.setForeground(TEXT_COLOR);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 2),
-                BorderFactory.createEmptyBorder(8, 16, 8, 16)));
-        button.setFocusPainted(false);
-        button.setUI(new BasicButtonUI() {
-            @Override
-            public void paint(Graphics g, JComponent c) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                AbstractButton b = (AbstractButton) c;
-                ButtonModel model = b.getModel();
+    private JLabel createStyledLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setForeground(TEXT_COLOR);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        return label;
+    }
 
-                if (model.isPressed()) {
-                    g2.setColor(BUTTON_HOVER_COLOR.darker());
-                } else if (model.isRollover()) {
-                    g2.setColor(BUTTON_HOVER_COLOR);
-                } else {
-                    g2.setColor(b.getBackground());
-                }
-                g2.fillRect(0, 0, b.getWidth(), b.getHeight());
-                g2.dispose();
-                super.paint(g, c);
+    private JTextField createStyledTextField() {
+        JTextField field = new JTextField();
+        field.setBackground(Color.WHITE);
+        field.setForeground(SECONDARY_COLOR);
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        return field;
+    }
+
+    private JComboBox<String> createStyledComboBox(String[] items) {
+        JComboBox<String> combo = new JComboBox<>(items);
+        combo.setBackground(Color.WHITE);
+        combo.setForeground(SECONDARY_COLOR);
+        combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        combo.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        return combo;
+    }
+
+    private JButton createStyledButton(String texto, Color fundo) {
+        JButton btn = new JButton(texto);
+        btn.setBackground(fundo);
+        btn.setForeground(TEXT_COLOR);
+        btn.setFont(new Font("Arial", Font.BOLD, 13));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btn.setUI(new BasicButtonUI() {
+            @Override
+            public void installUI(JComponent c) {
+                super.installUI(c);
+                ((AbstractButton) c).setOpaque(true);
+            }
+
+            @Override
+            protected void paintButtonPressed(Graphics g, AbstractButton b) {
+                g.setColor(BUTTON_HOVER_COLOR);
+                g.fillRect(0, 0, b.getWidth(), b.getHeight());
             }
         });
-        return button;
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(BUTTON_HOVER_COLOR);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(fundo);
+            }
+        });
+        return btn;
     }
 
-    private void salvarPessoa() {
-        if (pessoaEmEdicao != null) {
-            // Modo edição
-            Pessoa pessoaAtualizada = new Pessoa(
-                    null,
-                    txtNome.getText(),
-                    txtCtps.getText(),
-                    txtDataNascimento.getText(),
-                    (String) comboTipo.getSelectedItem()
-            );
-            pessoaService.updatePessoa(pessoaEmEdicao.getId(), pessoaAtualizada);
-        } else {
-            // Modo criação
-            Pessoa pessoa = new Pessoa(
-                    null,
-                    txtNome.getText(),
-                    txtCtps.getText(),
-                    txtDataNascimento.getText(),
-                    (String) comboTipo.getSelectedItem()
-            );
-            pessoaService.addPessoa(pessoa);
+    private void salvarPessoa(ActionEvent e) {
+        try {
+            Pessoa novaPessoa = new Pessoa();
+            novaPessoa.setNome(txtNome.getText());
+            novaPessoa.setCpf(txtCtps.getText());
+            novaPessoa.setDataNascimento(txtDataNascimento.getText());
+            novaPessoa.setTipo(comboTipo.getSelectedItem().toString());
+
+            if (pessoaEmEdicao == null) {
+                pessoaService.addPessoa(novaPessoa);
+            } else {
+                pessoaService.updatePessoa(pessoaEmEdicao.getId(), novaPessoa);
+            }
+
+            onSaveCallback.run();
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar pessoa: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-        pessoaList.atualizarTabela();
-        dispose();
     }
 }

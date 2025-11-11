@@ -7,12 +7,13 @@ import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
+import java.awt.event.ActionEvent;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class EstoqueForm extends JFrame {
+public class EstoqueForm extends JPanel {
     // Cores para a nova interface
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
     private static final Color SECONDARY_COLOR = new Color(75, 75, 75);
@@ -27,78 +28,56 @@ public class EstoqueForm extends JFrame {
     private JTextField txtLoteFabricacao;
     private JTextField txtDataValidade;
     private EstoqueService estoqueService;
-    private EstoqueList estoqueList;
     private Estoque estoqueEmEdicao;
+    private Runnable onSaveCallback;
+    private Runnable onCancelCallback;
 
-    public EstoqueForm(EstoqueService service, EstoqueList list) {
-        this(service, list, null);
+    public EstoqueForm(EstoqueService service, Runnable onSave, Runnable onCancel) {
+        this(service, onSave, onCancel, null);
     }
 
-    public EstoqueForm(EstoqueService service, EstoqueList list, Estoque estoque) {
+    public EstoqueForm(EstoqueService service, Runnable onSave, Runnable onCancel, Estoque estoque) {
         this.estoqueService = service;
-        this.estoqueList = list;
+        this.onSaveCallback = onSave;
+        this.onCancelCallback = onCancel;
         this.estoqueEmEdicao = estoque;
 
-        setTitle(estoque == null ? "Cadastro de Estoque" : "Editar Estoque");
-        getContentPane().setBackground(BACKGROUND_COLOR);
-        setSize(500, 550);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setBackground(BACKGROUND_COLOR);
+        setLayout(new BorderLayout());
+
+        // Título do Formulário
+        JLabel header = new JLabel(estoque == null ? "CADASTRO DE ESTOQUE" : "EDITAR ESTOQUE", SwingConstants.CENTER);
+        header.setFont(new Font("Arial Black", Font.BOLD, 20));
+        header.setOpaque(true);
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(TEXT_COLOR);
+        header.setBorder(new EmptyBorder(10, 0, 10, 0));
+        add(header, BorderLayout.NORTH);
+
         JPanel mainPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         mainPanel.setBackground(BACKGROUND_COLOR);
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         add(mainPanel, BorderLayout.CENTER);
 
-        mainPanel.add(new JLabel("Quantidade:"));
-
-
-        txtQuantidade = new JTextField();
-        txtQuantidade.setBackground(Color.WHITE);
-        txtQuantidade.setForeground(SECONDARY_COLOR);
-        txtQuantidade.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtQuantidade.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        // Campos do Formulário
+        mainPanel.add(createStyledLabel("Quantidade:"));
+        txtQuantidade = createStyledTextField();
         mainPanel.add(txtQuantidade);
 
-        mainPanel.add(new JLabel("Local Tanque:"));
-        txtLocalTanque = new JTextField();
-        txtLocalTanque.setBackground(Color.WHITE);
-        txtLocalTanque.setForeground(SECONDARY_COLOR);
-        txtLocalTanque.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtLocalTanque.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Local Tanque:"));
+        txtLocalTanque = createStyledTextField();
         mainPanel.add(txtLocalTanque);
 
-        mainPanel.add(new JLabel("Local Endereço:"));
-        txtLocalEndereco = new JTextField();
-        txtLocalEndereco.setBackground(Color.WHITE);
-        txtLocalEndereco.setForeground(SECONDARY_COLOR);
-        txtLocalEndereco.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtLocalEndereco.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Local Endereço:"));
+        txtLocalEndereco = createStyledTextField();
         mainPanel.add(txtLocalEndereco);
 
-        mainPanel.add(new JLabel("Lote Fabricação:"));
-        txtLoteFabricacao = new JTextField();
-        txtLoteFabricacao.setBackground(Color.WHITE);
-        txtLoteFabricacao.setForeground(SECONDARY_COLOR);
-        txtLoteFabricacao.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtLoteFabricacao.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Lote Fabricação:"));
+        txtLoteFabricacao = createStyledTextField();
         mainPanel.add(txtLoteFabricacao);
 
-        mainPanel.add(new JLabel("Data de Validade (dd/MM/yyyy):"));
-        txtDataValidade = new JTextField();
-        txtDataValidade.setBackground(Color.WHITE);
-        txtDataValidade.setForeground(SECONDARY_COLOR);
-        txtDataValidade.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        txtDataValidade.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        mainPanel.add(createStyledLabel("Data de Validade (dd/MM/yyyy):"));
+        txtDataValidade = createStyledTextField();
         mainPanel.add(txtDataValidade);
 
         // Se estiver editando, preencher os campos
@@ -111,85 +90,101 @@ public class EstoqueForm extends JFrame {
             txtDataValidade.setText(dateFormat.format(estoqueEmEdicao.getDataValidade()));
         }
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBackground(BACKGROUND_COLOR);
         add(buttonPanel, BorderLayout.SOUTH);
 
         JButton btnSalvar = createStyledButton("Salvar");
-        JButton btnCancelar = createStyledButton("Cancelar");
-
+        btnSalvar.addActionListener(this::salvarEstoque);
         buttonPanel.add(btnSalvar);
-        buttonPanel.add(btnCancelar);
 
-        btnSalvar.addActionListener(e -> salvarEstoque());
-        btnCancelar.addActionListener(e -> dispose());
+        JButton btnCancelar = createStyledButton("Cancelar");
+        btnCancelar.addActionListener(e -> onCancelCallback.run());
+        buttonPanel.add(btnCancelar);
+    }
+
+    private JLabel createStyledLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setForeground(TEXT_COLOR);
+        label.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        return label;
+    }
+
+    private JTextField createStyledTextField() {
+        JTextField field = new JTextField();
+        field.setBackground(Color.WHITE);
+        field.setForeground(SECONDARY_COLOR);
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(ACCENT_COLOR, 1),
+                BorderFactory.createEmptyBorder(5, 10, 5, 10)));
+        return field;
     }
 
     private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setBackground(PRIMARY_COLOR);
-        button.setForeground(TEXT_COLOR);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        button.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(ACCENT_COLOR, 2),
-                BorderFactory.createEmptyBorder(8, 16, 8, 16)));
-        button.setFocusPainted(false);
-        button.setUI(new BasicButtonUI() {
+        JButton btn = new JButton(text);
+        btn.setBackground(PRIMARY_COLOR);
+        btn.setForeground(TEXT_COLOR);
+        btn.setFont(new Font("Arial", Font.BOLD, 13));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        btn.setUI(new BasicButtonUI() {
             @Override
-            public void paint(Graphics g, JComponent c) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                AbstractButton b = (AbstractButton) c;
-                ButtonModel model = b.getModel();
+            public void installUI(JComponent c) {
+                super.installUI(c);
+                ((AbstractButton) c).setOpaque(true);
+            }
 
-                if (model.isPressed()) {
-                    g2.setColor(BUTTON_HOVER_COLOR.darker());
-                } else if (model.isRollover()) {
-                    g2.setColor(BUTTON_HOVER_COLOR);
-                } else {
-                    g2.setColor(b.getBackground());
-                }
-                g2.fillRect(0, 0, b.getWidth(), b.getHeight());
-                g2.dispose();
-                super.paint(g, c);
+            @Override
+            protected void paintButtonPressed(Graphics g, AbstractButton b) {
+                g.setColor(BUTTON_HOVER_COLOR);
+                g.fillRect(0, 0, b.getWidth(), b.getHeight());
             }
         });
-        return button;
+        btn.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btn.setBackground(BUTTON_HOVER_COLOR);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btn.setBackground(PRIMARY_COLOR);
+            }
+        });
+        return btn;
     }
 
-    private void salvarEstoque() {
+    private void salvarEstoque(ActionEvent e) {
         try {
             BigDecimal quantidade = new BigDecimal(txtQuantidade.getText());
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date dataValidade = dateFormat.parse(txtDataValidade.getText());
 
+            Estoque novoEstoque = new Estoque(
+                    null, // ID será definido pelo backend
+                    quantidade,
+                    txtLocalTanque.getText(),
+                    txtLocalEndereco.getText(),
+                    txtLoteFabricacao.getText(),
+                    dataValidade
+            );
+
             if (estoqueEmEdicao != null) {
                 // Modo edição
-                Estoque estoqueAtualizado = new Estoque(
-                        null, // ID será definido pelo backend
-                        quantidade,
-                        txtLocalTanque.getText(),
-                        txtLocalEndereco.getText(),
-                        txtLoteFabricacao.getText(),
-                        dataValidade
-                );
-                estoqueService.updateEstoque(estoqueEmEdicao.getId(), estoqueAtualizado);
+                novoEstoque.setId(estoqueEmEdicao.getId());
+                estoqueService.updateEstoque(estoqueEmEdicao.getId(), novoEstoque);
+                JOptionPane.showMessageDialog(this, "Estoque atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 // Modo criação
-                Estoque estoque = new Estoque(
-                        null, // ID será definido pelo backend
-                        quantidade,
-                        txtLocalTanque.getText(),
-                        txtLocalEndereco.getText(),
-                        txtLoteFabricacao.getText(),
-                        dataValidade
-                );
-                estoqueService.addEstoque(estoque);
+                estoqueService.addEstoque(novoEstoque);
+                JOptionPane.showMessageDialog(this, "Estoque adicionado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             }
-            estoqueList.atualizarTabela();
-            dispose();
+
+            onSaveCallback.run();
+
         } catch (NumberFormatException | ParseException ex) {
             JOptionPane.showMessageDialog(this, "Erro de formato de dados: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar estoque: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

@@ -9,15 +9,18 @@ import br.com.PdvFrontEnd.util.HttpClient;
 import javax.swing.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 public class PessoaService {
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter FORMAT_BR = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter FORMAT_ISO = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public PessoaService() {
@@ -58,7 +61,8 @@ public class PessoaService {
             request.setCpfCnpj(pessoa.getCpf());
 
             if (pessoa.getDataNascimento() != null && !pessoa.getDataNascimento().isEmpty()) {
-                request.setDataNascimento(LocalDate.parse(pessoa.getDataNascimento(), DATE_FORMATTER));
+                LocalDate dataNascimento = parseDataFlexivel(pessoa.getDataNascimento());
+                request.setDataNascimento(dataNascimento);
             }
 
             request.setTipoPessoa(pessoa.getTipo().toUpperCase());
@@ -93,6 +97,28 @@ public class PessoaService {
         }
     }
 
+    public Pessoa getPessoaById(Long id) {
+        try {
+            PessoaResponse pessoaResponse = HttpClient.get("/v1/pessoas/" + id, PessoaResponse.class);
+            Pessoa pessoa = new Pessoa();
+            pessoa.setId(pessoaResponse.getId());
+            pessoa.setNome(pessoaResponse.getNomeCompleto());
+            pessoa.setCpf(pessoaResponse.getCpfCnpj());
+            pessoa.setDataNascimento(pessoaResponse.getDataNascimento() != null ?
+                    pessoaResponse.getDataNascimento().toString() : "");
+            pessoa.setTipo(pessoaResponse.getTipoPessoa() != null ?
+                    pessoaResponse.getTipoPessoa() : "");
+            return pessoa;
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Erro ao buscar pessoa por ID: " + e.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
     public void updatePessoa(Long id, Pessoa pessoa) {
         try {
             PessoaRequest request = new PessoaRequest();
@@ -100,7 +126,8 @@ public class PessoaService {
             request.setCpfCnpj(pessoa.getCpf());
 
             if (pessoa.getDataNascimento() != null && !pessoa.getDataNascimento().isEmpty()) {
-                request.setDataNascimento(LocalDate.parse(pessoa.getDataNascimento(), DATE_FORMATTER));
+                LocalDate dataNascimento = parseDataFlexivel(pessoa.getDataNascimento());
+                request.setDataNascimento(dataNascimento);
             }
 
             request.setTipoPessoa(pessoa.getTipo().toUpperCase());
@@ -116,6 +143,15 @@ public class PessoaService {
                     "Erro ao atualizar pessoa: " + e.getMessage(),
                     "Erro",
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // 🔧 Novo método para aceitar múltiplos formatos de data
+    private LocalDate parseDataFlexivel(String data) {
+        try {
+            return LocalDate.parse(data, FORMAT_BR); // tenta dd/MM/yyyy
+        } catch (DateTimeParseException e) {
+            return LocalDate.parse(data, FORMAT_ISO); // tenta yyyy-MM-dd
         }
     }
 }

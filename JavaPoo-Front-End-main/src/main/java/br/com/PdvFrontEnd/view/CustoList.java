@@ -13,6 +13,9 @@ import java.util.List;
 public class CustoList extends JPanel {
     private final CustoService custoService;
     private JTable table;
+    private JPanel cardPanel; // Painel que gerencia a troca de views (Lista vs Formulário)
+    private final static String LIST_VIEW = "Lista";
+    private final static String FORM_VIEW = "Formulário";
 
     // Cores para a nova interface
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
@@ -26,11 +29,21 @@ public class CustoList extends JPanel {
 
     public CustoList(CustoService service) {
         this.custoService = service;
+        setLayout(new BorderLayout());
+        setBackground(BACKGROUND_COLOR);
         initComponents();
+        atualizarTabela();
     }
 
     private void initComponents() {
-        // Removidas configurações de JFrame
+        // 1. Painel de Cartões (CardLayout)
+        cardPanel = new JPanel(new CardLayout());
+        cardPanel.add(createListView(), LIST_VIEW);
+
+        add(cardPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel createListView() {
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBackground(BACKGROUND_COLOR);
         mainPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -84,18 +97,12 @@ public class CustoList extends JPanel {
 
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        add(mainPanel);
-
-        btnAdicionar.addActionListener(e -> {
-            CustoForm form = new CustoForm(custoService, this);
-            form.setVisible(true);
-        });
-
-        btnEditar.addActionListener(e -> editarCusto(e));
-        btnRemover.addActionListener(e -> removerCusto(e));
+        btnAdicionar.addActionListener(e -> exibirFormulario(null));
+        btnEditar.addActionListener(this::editarCusto);
+        btnRemover.addActionListener(this::removerCusto);
         btnAtualizar.addActionListener(e -> atualizarTabela());
 
-        atualizarTabela();
+        return mainPanel;
     }
 
     private JButton criarBotao(String texto, Color fundo, Color textoCor) {
@@ -109,61 +116,18 @@ public class CustoList extends JPanel {
                 new EmptyBorder(8, 16, 8, 16)
         ));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(BUTTON_HOVER_COLOR);
-            }
-
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btn.setBackground(fundo);
-            }
-        });
+        // Estilos de botão removidos para simplificar, mas podem ser adicionados de volta
         return btn;
     }
 
-    private void editarCusto(ActionEvent e) {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            List<Custo> custos = custoService.getAllCustos();
-            if (selectedRow < custos.size()) {
-                Custo custo = custos.get(selectedRow);
-                if (custo.getId() != null) {
-                    CustoForm form = new CustoForm(custoService, this, custo);
-                    form.setVisible(true);
-                } else {
-                    JOptionPane.showMessageDialog(this, "Custo não possui ID válido!");
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Selecione um custo para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private void removerCusto(ActionEvent e) {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow != -1) {
-            List<Custo> custos = custoService.getAllCustos();
-            if (selectedRow < custos.size()) {
-                Custo custo = custos.get(selectedRow);
-                if (custo.getId() != null) {
-                    custoService.removeCusto(custo.getId());
-                    atualizarTabela();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Custo não possui ID válido!");
-                }
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Selecione um custo para remover.", "Aviso", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
     public void atualizarTabela() {
-        String[] colunas = {"Imposto", "Frete", "Custo Variável", "Custo Fixo", "Margem de Lucro", "Data de Processamento"};
+        String[] colunas = {"ID", "Imposto", "Frete", "Custo Variável", "Custo Fixo", "Margem de Lucro", "Data de Processamento"};
         DefaultTableModel model = new DefaultTableModel(colunas, 0);
 
         List<Custo> custos = custoService.getAllCustos();
         for (Custo custo : custos) {
             model.addRow(new Object[]{
+                    custo.getId(),
                     custo.getImposto(),
                     custo.getFrete(),
                     custo.getCustoVariavel(),
@@ -174,5 +138,73 @@ public class CustoList extends JPanel {
         }
 
         table.setModel(model);
+        // Esconder a coluna ID para um visual mais limpo, mas manter o dado para edição/remoção
+        if (table.getColumnModel().getColumnCount() > 0) {
+            table.getColumnModel().getColumn(0).setMinWidth(0);
+            table.getColumnModel().getColumn(0).setMaxWidth(0);
+            table.getColumnModel().getColumn(0).setWidth(0);
+        }
+    }
+
+    private void exibirFormulario(Custo custo) {
+        // Remove o formulário anterior, se houver
+        if (cardPanel.getComponentCount() > 1) {
+            cardPanel.remove(1);
+        }
+
+        // Callbacks para o formulário
+        Runnable onSave = () -> {
+            atualizarTabela();
+            exibirLista();
+        };
+        Runnable onCancel = this::exibirLista;
+
+        // Cria o novo formulário
+        CustoForm form = new CustoForm(custoService, onSave, onCancel, custo);
+        cardPanel.add(form, FORM_VIEW);
+
+        // Exibe o formulário
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, FORM_VIEW);
+    }
+
+    private void exibirLista() {
+        CardLayout cl = (CardLayout) (cardPanel.getLayout());
+        cl.show(cardPanel, LIST_VIEW);
+    }
+
+    private void editarCusto(ActionEvent e) {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            try {
+                // Obtém o ID do custo selecionado
+                Long custoId = (Long) table.getValueAt(selectedRow, 0);
+                Custo custo = custoService.getCustoById(custoId);
+                exibirFormulario(custo);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao buscar custo para edição: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione um custo para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void removerCusto(ActionEvent e) {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            try {
+                Long custoId = (Long) table.getValueAt(selectedRow, 0);
+                int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja remover este custo?", "Confirmação", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    custoService.removeCusto(custoId);
+                    atualizarTabela();
+                    JOptionPane.showMessageDialog(this, "Custo removido com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Erro ao remover custo: " + ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Selecione um custo para remover.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
     }
 }
