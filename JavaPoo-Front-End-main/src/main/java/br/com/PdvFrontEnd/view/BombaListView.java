@@ -2,6 +2,7 @@ package br.com.PdvFrontEnd.view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.InputStream;
 
 public class BombaListView extends JPanel {
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240); // Roxo #8F7DF0
@@ -9,6 +10,7 @@ public class BombaListView extends JPanel {
     private static final Color ACCENT_COLOR = new Color(100, 80, 180); // Roxo mais escuro para abas ativas
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Color ACTIVE_COLOR = new Color(46, 204, 113); // Verde
+    private static final Color INACTIVE_COLOR = new Color(231, 76, 60); // Vermelho
     private static final Color BUTTON_HOVER_COLOR = new Color(169, 156, 199); // Roxo mais claro para hover
 
     public BombaListView() {
@@ -16,7 +18,6 @@ public class BombaListView extends JPanel {
     }
 
     private void initComponents() {
-        // Removidas configurações de JFrame (título, tamanho, fechamento, localização)
         setBackground(SECONDARY_COLOR);
         setLayout(new BorderLayout(10, 10));
 
@@ -33,15 +34,19 @@ public class BombaListView extends JPanel {
         headerPanel.add(lblTitle);
         add(headerPanel, BorderLayout.NORTH);
 
-        // Painel central com as bombas
-        JPanel mainPanel = new JPanel(new GridLayout(1, 3, 30, 30));
+        // Painel central com as bombas - 2 linhas, 3 colunas
+        JPanel mainPanel = new JPanel(new GridLayout(2, 3, 30, 30));
         mainPanel.setBackground(SECONDARY_COLOR);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
-        // Criar painel para cada bomba
-        for (int i = 1; i <= 3; i++) {
-            mainPanel.add(createBombaCard(i));
+        // Criar painel para cada bomba (5 bombas: 4 ativas, 1 inativa)
+        for (int i = 1; i <= 5; i++) {
+            boolean isActive = i <= 4; // Bombas 1 a 4 ativas, Bomba 5 inativa
+            mainPanel.add(createBombaCard(i, isActive));
         }
+
+        // Adicionar um painel vazio para preencher a última célula do grid 2x3
+        mainPanel.add(new JPanel() {{ setBackground(SECONDARY_COLOR); }});
 
         add(mainPanel, BorderLayout.CENTER);
 
@@ -49,52 +54,74 @@ public class BombaListView extends JPanel {
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
         footerPanel.setBackground(SECONDARY_COLOR);
         footerPanel.add(createStatusLabel("● Ativa", ACTIVE_COLOR));
+        footerPanel.add(createStatusLabel("● Inativa", INACTIVE_COLOR));
         add(footerPanel, BorderLayout.SOUTH);
     }
 
-    private JPanel createBombaCard(int numeroBomba) {
+    private JPanel createBombaCard(int numeroBomba, boolean isActive) {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBackground(SECONDARY_COLOR);
         card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(PRIMARY_COLOR, 3),
+                BorderFactory.createLineBorder(isActive ? ACTIVE_COLOR : INACTIVE_COLOR, 3),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
 
         // Título da bomba
         JLabel lblNumero = new JLabel("BOMBA " + numeroBomba);
-        lblNumero.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblNumero.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblNumero.setForeground(TEXT_COLOR);
         lblNumero.setAlignmentX(Component.CENTER_ALIGNMENT);
         card.add(lblNumero);
+        card.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        // Imagem da Bomba
+        JLabel lblImage = new JLabel();
+        try {
+            InputStream imgStream = getClass().getResourceAsStream("/images/gas_pump_icon.png");
+
+            if (imgStream != null) {
+                ImageIcon originalIcon = new ImageIcon(imgStream.readAllBytes());
+                Image originalImage = originalIcon.getImage();
+                Image scaledImage = originalImage.getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+                lblImage.setIcon(new ImageIcon(scaledImage));
+            } else {
+                lblImage.setText("[IMAGEM NÃO ENCONTRADA]");
+                lblImage.setForeground(INACTIVE_COLOR);
+            }
+        } catch (Exception e) {
+            lblImage.setText("[ERRO AO CARREGAR IMAGEM]");
+            lblImage.setForeground(INACTIVE_COLOR);
+            e.printStackTrace();
+        }
+        lblImage.setAlignmentX(Component.CENTER_ALIGNMENT);
+        card.add(lblImage);
         card.add(Box.createRigidArea(new Dimension(0, 15)));
 
         // Status
-        JPanel statusPanel = new JPanel();
-        statusPanel.setOpaque(false);
-        statusPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        String statusText = isActive ? "ATIVA" : "INATIVA";
+        Color statusColor = isActive ? ACTIVE_COLOR : INACTIVE_COLOR;
 
-        JPanel statusIndicator = new JPanel();
-        statusIndicator.setBackground(ACTIVE_COLOR);
-        statusIndicator.setPreferredSize(new Dimension(40, 40));
-        statusPanel.add(statusIndicator);
-
-        card.add(statusPanel);
-        card.add(Box.createRigidArea(new Dimension(0, 10)));
-
-        JLabel lblStatus = new JLabel("ATIVA");
-        lblStatus.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        lblStatus.setForeground(ACTIVE_COLOR);
+        JLabel lblStatus = new JLabel("● " + statusText);
+        lblStatus.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblStatus.setForeground(statusColor);
         lblStatus.setAlignmentX(Component.CENTER_ALIGNMENT);
         card.add(lblStatus);
-        card.add(Box.createRigidArea(new Dimension(0, 25)));
+        card.add(Box.createRigidArea(new Dimension(0, 15)));
 
         // Botão Abastecer
         JButton btnAbastecer = createStyledButton("ABASTECER");
         btnAbastecer.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnAbastecer.setMaximumSize(new Dimension(180, 45));
-        btnAbastecer.setBackground(ACTIVE_COLOR);
-        btnAbastecer.addActionListener(e -> new BombaManagerView(numeroBomba).setVisible(true));
+        btnAbastecer.setMaximumSize(new Dimension(180, 40));
+        btnAbastecer.setBackground(isActive ? ACTIVE_COLOR : INACTIVE_COLOR.darker());
+        btnAbastecer.setEnabled(isActive); // Desabilita o botão se a bomba estiver inativa
+
+        if (isActive) {
+            btnAbastecer.addActionListener(e -> new BombaManagerView(numeroBomba).setVisible(true));
+        } else {
+            btnAbastecer.addActionListener(e -> JOptionPane.showMessageDialog(card, "Bomba Inativa. Não é possível abastecer.", "Erro", JOptionPane.ERROR_MESSAGE));
+        }
+
         card.add(btnAbastecer);
 
         return card;
@@ -109,7 +136,7 @@ public class BombaListView extends JPanel {
 
     private JButton createStyledButton(String text) {
         JButton button = new JButton(text);
-        button.setBackground(PRIMARY_COLOR);;
+        button.setBackground(PRIMARY_COLOR);
         button.setForeground(TEXT_COLOR);
         button.setFont(new Font("Segoe UI", Font.BOLD, 14));
         button.setBorder(BorderFactory.createCompoundBorder(
@@ -120,20 +147,23 @@ public class BombaListView extends JPanel {
 
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(BUTTON_HOVER_COLOR);
+                if (button.isEnabled()) {
+                    button.setBackground(BUTTON_HOVER_COLOR);
+                }
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                Color bg = (Color) button.getClientProperty("originalColor");
-                if (bg != null) {
-                    button.setBackground(bg);
-                } else {
-                    button.setBackground(PRIMARY_COLOR);
+                if (button.isEnabled()) {
+                    Color bg = (Color) button.getClientProperty("originalColor");
+                    if (bg != null) {
+                        button.setBackground(bg);
+                    } else {
+                        button.setBackground(PRIMARY_COLOR);
+                    }
                 }
             }
         });
 
-        button.putClientProperty("originalColor", PRIMARY_COLOR);
+        button.putClientProperty("originalColor", button.getBackground());
         return button;
     }
 }
-

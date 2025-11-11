@@ -16,8 +16,8 @@ import org.springframework.context.annotation.ComponentScan;
         version = "1.0",
         description = "API para gerenciamento de PDV de posto de combustível",
         contact = @Contact(
-            name = "Suporte",
-            email = "suporte@pdvposto.com"
+            name = "Gilvan Pedro",
+            email = "gilvanpedro2006@gmail.com"
         )
     ),
     servers = {

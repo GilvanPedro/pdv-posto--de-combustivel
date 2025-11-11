@@ -1,483 +1,254 @@
-# 🏪 PDV Posto de Combustível
+# ⛽ PDV Posto de Combustível
 
-![Java](https://img.shields.io/badge/Java-17-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-brightgreen)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue)
-![Swing](https://img.shields.io/badge/GUI-Java%20Swing-red)
-![License](https://img.shields.io/badge/license-MIT-green)
+[![Java](https://img.shields.io/badge/Java-17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.5-6DB33F?style=for-the-badge&logo=spring&logoColor=white)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Java Swing](https://img.shields.io/badge/GUI-Java%20Swing-5382A1?style=for-the-badge&logo=java&logoColor=white)](https://docs.oracle.com/javase/8/docs/technotes/guides/swing/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange.svg?style=for-the-badge)](https://github.com/GilvanPedro/pdv-posto--de-combustivel)
 
-Sistema de Ponto de Venda (PDV) para Posto de Combustível desenvolvido em **Java** com **Spring Boot** (Backend) e **Java Swing** (Frontend).
-
----
+Sistema de Ponto de Venda (PDV) para Posto de Combustível, desenvolvido como um projeto acadêmico completo, utilizando **Java** com **Spring Boot** para o Backend (API REST) e **Java Swing** para o Frontend (Interface Gráfica).
 
 ## 📋 Índice
 
-- [Sobre o Projeto](#-sobre-o-projeto)
-- [Funcionalidades](#-funcionalidades)
-- [Tecnologias](#-tecnologias)
-- [Arquitetura](#-arquitetura)
-- [Pré-requisitos](#-pré-requisitos)
-- [Instalação](#-instalação)
-- [Como Usar](#-como-usar)
-- [API REST](#-api-rest)
-- [Screenshots](#-screenshots)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [Contribuindo](#-contribuindo)
-- [Licença](#-licença)
-- [Contato](#-contato)
-
----
+*   [Sobre o Projeto](#-sobre-o-projeto)
+*   [Funcionalidades Chave](#-funcionalidades-chave)
+*   [Arquitetura e Padrões](#-arquitetura-e-padrões)
+*   [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+*   [Pré-requisitos](#-pré-requisitos)
+*   [Instalação e Configuração](#-instalação-e-configuração)
+*   [Como Usar](#-como-usar)
+*   [Documentação da API](#-documentação-da-api)
+*   [Estrutura do Projeto](#-estrutura-do-projeto)
+*   [Contribuindo](#-contribuindo)
+*   [Licença](#-licença)
+*   [Contato](#-contato)
 
 ## 🎯 Sobre o Projeto
 
-O **PDV Posto de Combustível** é um sistema completo de gerenciamento para postos de combustível, desenvolvido como projeto acadêmico utilizando boas práticas de programação orientada a objetos, arquitetura REST e padrões de projeto.
+O **PDV Posto de Combustível** é uma solução de gerenciamento robusta, focada em demonstrar a aplicação de boas práticas de desenvolvimento de software, como a **Programação Orientada a Objetos (POO)**, **Arquitetura REST** e diversos **Padrões de Projeto**.
 
-O sistema oferece uma interface gráfica moderna desenvolvida em **Java Swing** que se comunica com uma **API REST** desenvolvida em **Spring Boot**, com persistência de dados em **PostgreSQL**.
+O sistema é dividido em duas partes principais:
 
-### ✨ Destaques
+1.  **Backend (API REST):** Construído com **Spring Boot**, responsável pela lógica de negócios, persistência de dados e exposição dos serviços via HTTP.
+2.  **Frontend (Interface Gráfica):** Desenvolvido em **Java Swing**, fornecendo uma interface de usuário moderna e intuitiva que se comunica com o Backend via requisições HTTP/JSON.
 
-- ✅ **Sistema de Login e Cadastro** com autenticação
-- ✅ **CRUD Completo** para 7 entidades diferentes
-- ✅ **Interface Gráfica Moderna** com Java Swing
-- ✅ **API REST** documentada com Swagger/OpenAPI
-- ✅ **Banco de Dados** PostgreSQL com JPA/Hibernate
-- ✅ **Registro de Acessos** automático
-- ✅ **Validações** de dados (CPF, CNPJ, campos obrigatórios)
-- ✅ **Tratamento de Exceções** global
+### ✨ Destaques do Projeto
 
----
+| Recurso | Descrição |
+| :--- | :--- |
+| **Arquitetura** | Separação clara entre Frontend (Swing) e Backend (Spring Boot) com comunicação RESTful. |
+| **Segurança** | Sistema de Login e Cadastro com autenticação e registro de acessos. |
+| **Persistência** | Utilização de **PostgreSQL** com **Spring Data JPA** e **Hibernate** para gerenciamento de 7 entidades. |
+| **Qualidade** | Implementação de validações de dados (CPF, CNPJ, campos obrigatórios) e tratamento de exceções global. |
+| **Documentação** | API documentada automaticamente com **Swagger/OpenAPI**. |
 
-## 🚀 Funcionalidades
+## 🚀 Funcionalidades Chave
 
-### 🔐 Autenticação
-- **Login** - Sistema de autenticação de usuários
-- **Cadastro** - Registro de novos usuários
-- **Sessão** - Gerenciamento de sessão local
-- **Registro de Acessos** - Histórico de logins no banco de dados
+O sistema oferece um **CRUD (Create, Read, Update, Delete) completo** para as seguintes entidades, além de um robusto sistema de autenticação:
 
-### 📊 Gerenciadores (CRUD Completo)
+### 🔐 Autenticação e Acesso
 
-1. **👥 Pessoas**
-   - Cadastro de clientes e funcionários
-   - Suporte para Pessoa Física (CPF) e Jurídica (CNPJ)
-   - Validação de CPF/CNPJ
+*   **Login e Cadastro:** Autenticação de usuários com gerenciamento de sessão.
+*   **Registro de Acessos:** Histórico detalhado de logins no banco de dados.
 
-2. **📦 Produtos**
-   - Gerenciamento de produtos do posto
-   - Descrição, código de barras, etc.
+### 📊 Gerenciamento de Entidades
 
-3. **💰 Preços**
-   - Controle de preços dos produtos
-   - Histórico de alterações
+| Entidade | Descrição |
+| :--- | :--- |
+| **👥 Pessoas** | Cadastro de clientes e funcionários, com suporte para Pessoa Física (CPF) e Jurídica (CNPJ) e validação de documentos. |
+| **📦 Produtos** | Gerenciamento de itens e combustíveis vendidos no posto. |
+| **💰 Preços** | Controle e histórico de preços de venda dos produtos. |
+| **💵 Custos** | Registro e controle de despesas e custos operacionais. |
+| **📦 Estoques** | Gestão de inventário, quantidades disponíveis e movimentações de estoque. |
+| **🔑 Acessos** | Administração de usuários e permissões do sistema. |
+| **📞 Contatos** | Cadastro de informações de contato (telefones, e-mails). |
 
-4. **💵 Custos**
-   - Registro de custos operacionais
-   - Controle de despesas
+## 🏗️ Arquitetura e Padrões
 
-5. **📦 Estoques**
-   - Controle de estoque de produtos
-   - Quantidade disponível
-   - Movimentações
+O projeto segue uma arquitetura em camadas bem definida, promovendo a separação de responsabilidades e a manutenibilidade do código.
 
-6. **🔑 Acessos**
-   - Gerenciamento de usuários do sistema
-   - Visualização de histórico de logins
+### Diagrama de Arquitetura
 
-7. **📞 Contatos**
-   - Cadastro de contatos
-   - Telefones, emails, etc.
-
----
-
-## 🛠️ Tecnologias
-
-### Backend
-- **Java 17**
-- **Spring Boot 3.2.5**
-  - Spring Web (REST API)
-  - Spring Data JPA
-  - Spring Validation
-  - Spring DevTools
-- **PostgreSQL 15**
-- **Hibernate** (JPA Implementation)
-- **Swagger/OpenAPI 2.3.0** (Documentação da API)
-- **Maven** (Gerenciamento de dependências)
-
-### Frontend
-- **Java 17**
-- **Java Swing** (Interface Gráfica)
-- **Jackson** (Serialização JSON)
-- **Maven**
-
-### Banco de Dados
-- **PostgreSQL 15**
-- **7 Tabelas**:
-  - `pessoas`
-  - `produtos`
-  - `precos`
-  - `custos`
-  - `estoques`
-  - `acessos`
-  - `contatos`
-
----
-
-## 🏗️ Arquitetura
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    FRONTEND (Java Swing)                    │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │  Views   │  │ Services │  │   DTOs   │  │  Models  │   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                            ↕ HTTP/JSON
-┌─────────────────────────────────────────────────────────────┐
-│                  BACKEND (Spring Boot REST API)             │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │Controller│→ │ Service  │→ │Repository│→ │ Entity   │   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
-└─────────────────────────────────────────────────────────────┘
-                            ↕ JPA/Hibernate
-┌─────────────────────────────────────────────────────────────┐
-│                   DATABASE (PostgreSQL)                     │
-│              7 Tabelas com Relacionamentos                  │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    A[Frontend - Java Swing] -->|HTTP/JSON| B(Backend - Spring Boot REST API)
+    B -->|JPA/Hibernate| C[Database - PostgreSQL]
+    
+    subgraph Backend Layers
+        B1(Controller) --> B2(Service)
+        B2 --> B3(Repository)
+        B3 --> B4(Entity)
+    end
+    
+    B --> B1
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#ccf,stroke:#333,stroke-width:2px
+    style C fill:#ddf,stroke:#333,stroke-width:2px
 ```
 
-### Padrões de Projeto Utilizados
-- **MVC** (Model-View-Controller)
-- **DTO** (Data Transfer Object)
-- **Repository Pattern**
-- **Service Layer Pattern**
-- **Dependency Injection**
-- **RESTful API**
+### Padrões de Projeto
 
----
+*   **MVC (Model-View-Controller):** Aplicado na estrutura do Frontend Swing.
+*   **DTO (Data Transfer Object):** Utilizado para transferir dados entre as camadas do Backend e a comunicação com o Frontend.
+*   **Repository Pattern:** Abstração da camada de persistência de dados.
+*   **Service Layer Pattern:** Camada de lógica de negócios, isolando-a dos Controllers.
+*   **Dependency Injection:** Gerenciamento de dependências pelo Spring Framework.
+*   **RESTful API:** Implementação de uma interface de comunicação padronizada e sem estado.
+
+## 🛠️ Tecnologias Utilizadas
+
+| Categoria | Tecnologia | Versão | Descrição |
+| :--- | :--- | :--- | :--- |
+| **Linguagem** | Java | 17+ | Linguagem principal de desenvolvimento. |
+| **Backend** | Spring Boot | 3.2.5 | Framework para construção da API REST. |
+| **Frontend** | Java Swing | N/A | Toolkit para a Interface Gráfica (GUI). |
+| **Banco de Dados** | PostgreSQL | 15+ | Sistema de Gerenciamento de Banco de Dados Relacional (SGBDR). |
+| **Persistência** | Spring Data JPA / Hibernate | N/A | Mapeamento Objeto-Relacional (ORM). |
+| **Documentação** | Swagger/OpenAPI | 2.3.0 | Geração automática de documentação da API. |
+| **Build Tool** | Maven | 3.8+ | Gerenciamento de dependências e ciclo de vida do projeto. |
+| **Serialização** | Jackson | N/A | Processamento de JSON no Frontend. |
 
 ## 📦 Pré-requisitos
 
-Antes de começar, você precisa ter instalado:
+Certifique-se de ter as seguintes ferramentas instaladas em sua máquina:
 
-- **Java JDK 17+** - [Download](https://www.oracle.com/java/technologies/downloads/)
-- **Maven 3.8+** - [Download](https://maven.apache.org/download.cgi)
-- **PostgreSQL 15+** - [Download](https://www.postgresql.org/download/)
-- **IDE** (IntelliJ IDEA recomendado) - [Download](https://www.jetbrains.com/idea/download/)
+*   **Java JDK 17+**: [Download Oficial](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
+*   **Maven 3.8+**: [Instalação](https://maven.apache.org/install.html)
+*   **PostgreSQL 15+**: [Download Oficial](https://www.postgresql.org/download/)
+*   **IDE (Recomendado)**: IntelliJ IDEA ou Eclipse.
 
-Verificar instalações:
+Para verificar suas instalações, execute no terminal:
+
 ```bash
 java -version
 mvn -version
 psql --version
 ```
 
----
+## ⚙️ Instalação e Configuração
 
-## ⚙️ Instalação
+Siga os passos abaixo para configurar e executar o projeto localmente.
 
 ### 1️⃣ Clonar o Repositório
 
 ```bash
-git clone https://github.com/Sidney-Emanuel-Oliveira/pdv-posto-combustivel.git
-cd pdv-posto-combustivel
+git clone https://github.com/GilvanPedro/pdv-posto--de-combustivel.git
+cd pdv-posto--de-combustivel
 ```
 
-### 2️⃣ Criar Banco de Dados
+### 2️⃣ Configurar o Banco de Dados
 
-**Opção 1: Via pgAdmin**
-1. Abra o pgAdmin 4
-2. Conecte ao servidor PostgreSQL
-3. Clique com botão direito em "Databases"
-4. Selecione "Create" → "Database"
-5. Nome: `pdvpostocombustivel`
-6. Salvar
+Crie um banco de dados PostgreSQL com o nome `pdvpostocombustivel`.
 
-**Opção 2: Via SQL**
+**Via SQL:**
+
 ```sql
 CREATE DATABASE pdvpostocombustivel;
 ```
 
-### 3️⃣ Configurar Senha do PostgreSQL
+### 3️⃣ Configurar Credenciais do Banco de Dados
 
-Navegue até:
-```
-pdv-posto-combustivel/src/main/resources/
-```
+1.  Navegue até o diretório de recursos do Backend: `pdv-posto--de-combustivel/pdv-posto-combustivel/src/main/resources/`
+2.  Se o arquivo `application.properties` não existir, copie o arquivo de exemplo:
+    ```bash
+    cp application.properties.example application.properties
+    ```
+3.  Edite o arquivo `application.properties` e substitua `SUA_SENHA_AQUI` pela senha do seu usuário PostgreSQL:
 
-**Se não existir `application.properties`, copie de:**
-```
-application.properties.example → application.properties
-```
+    ```ini
+    # Exemplo de configuração
+    spring.datasource.url=jdbc:postgresql://localhost:5432/pdvpostocombustivel
+    spring.datasource.username=postgres
+    spring.datasource.password=SUA_SENHA_AQUI
+    ```
 
-**Edite a senha:**
-```properties
-spring.datasource.password=SUA_SENHA_AQUI
-```
+### 4️⃣ Executar o Backend (API REST)
 
-### 4️⃣ Executar o Backend
+O Backend será executado na porta padrão `8082`.
 
-**Via Maven:**
+**Via Terminal (Maven):**
+
 ```bash
 cd pdv-posto-combustivel
 mvn spring-boot:run
 ```
 
-**Via IntelliJ:**
-1. Abra: `PdvpostocombustivelApplication.java`
-2. Clique com botão direito → Run
+**URL Base da API:** `http://localhost:8080`
 
-✅ **Backend rodando em:** `http://localhost:8080`
+### 5️⃣ Executar o Frontend (Java Swing)
 
-### 5️⃣ Executar o Frontend
+O Frontend deve ser executado *após* o Backend estar ativo.
 
-**Via IntelliJ:**
-1. Abra: `JavaPoo-Front-End-main`
-2. Navegue: `src/main/java/br/com/PdvFrontEnd/view/MainApp.java`
-3. Clique com botão direito → Run 'MainApp.main()'
+**Via IDE (IntelliJ/Eclipse):**
 
-✅ **Interface gráfica abrirá automaticamente!**
+1.  Abra o projeto `JavaPoo-Front-End-main` na sua IDE.
+2.  Localize a classe principal: `src/main/java/br/com/PdvFrontEnd/view/MainApp.java`
+3.  Execute o método `main()` desta classe.
 
----
+A interface gráfica será iniciada e tentará se conectar à API REST em `http://localhost:8080`.
 
 ## 💻 Como Usar
 
-### Primeiro Acesso
+### Primeiro Acesso (Cadastro Inicial)
 
-1. Execute o **Backend**
-2. Execute o **Frontend**
-3. Sistema abrirá tela de **CADASTRO** (primeira vez)
-4. Preencha seus dados e clique em "Cadastrar"
-5. Faça **LOGIN** com suas credenciais
-6. Tela de **GERENCIAMENTO** será exibida
+Na primeira execução do Frontend, o sistema detectará a ausência de usuários e o direcionará automaticamente para a tela de **CADASTRO**.
 
-### Próximos Acessos
+1.  Preencha os dados solicitados.
+2.  Clique em "Cadastrar".
+3.  Você será redirecionado para a tela de **LOGIN**.
 
-1. Execute o **Backend**
-2. Execute o **Frontend**
-3. Sistema abrirá tela de **LOGIN**
-4. Digite usuário e senha
-5. Acesse os gerenciadores
+### Acessos Subsequentes
 
-### Gerenciadores Disponíveis
+1.  Execute o **Backend** e o **Frontend**.
+2.  Na tela de **LOGIN**, insira as credenciais cadastradas.
+3.  A tela de **GERENCIAMENTO** será exibida, permitindo o acesso a todas as funcionalidades (Pessoas, Produtos, Estoques, etc.).
 
-- 👥 **Gerenciar Pessoas** - CRUD de clientes/funcionários
-- 💰 **Gerenciar Preços** - Controle de preços
-- 📦 **Gerenciar Produtos** - Cadastro de produtos
-- 💵 **Gerenciar Custos** - Registro de custos
-- 📦 **Gerenciar Estoques** - Controle de estoque
-- 🔑 **Gerenciar Acessos** - Usuários e histórico
-- 📞 **Gerenciar Contatos** - Cadastro de contatos
+## 📖 Documentação da API
 
----
+A documentação da API REST é gerada automaticamente utilizando **Swagger/OpenAPI** e pode ser acessada no seu navegador após a execução do Backend:
 
-## 📡 API REST
+**URL da Documentação:** `http://localhost:8080/swagger-ui.html`
 
-### Swagger/OpenAPI
+Esta interface permite visualizar todos os *endpoints* disponíveis, seus parâmetros de requisição e respostas esperadas.
 
-Acesse a documentação interativa da API:
+## 📂 Estrutura do Projeto
+
+O repositório está organizado em dois módulos principais:
 
 ```
-http://localhost:8080/swagger-ui.html
+pdv-posto--de-combustivel/
+├── pdv-posto-combustivel/         # Módulo Backend (Spring Boot)
+│   ├── src/main/java/             # Código-fonte Java do Backend
+│   ├── src/main/resources/        # Arquivos de configuração (application.properties)
+│   └── pom.xml                    # Dependências e configuração do Maven
+├── JavaPoo-Front-End-main/        # Módulo Frontend (Java Swing)
+│   ├── src/main/java/             # Código-fonte Java do Frontend (Views, Services)
+│   └── pom.xml                    # Dependências do Maven para o Frontend
+├── _docs_e_scripts/               # Documentação e scripts auxiliares
+├── COMO_CONFIGURAR_E_TESTAR.md    # Guia de configuração (será substituído por este README)
+└── README.md                      # Este arquivo
 ```
-
-### Endpoints Principais
-
-#### 👥 Pessoas
-```http
-GET    /api/v1/pessoas          - Listar todas
-GET    /api/v1/pessoas/{id}     - Buscar por ID
-POST   /api/v1/pessoas          - Criar nova
-PUT    /api/v1/pessoas/{id}     - Atualizar
-DELETE /api/v1/pessoas/{id}     - Remover
-```
-
-#### 📦 Produtos
-```http
-GET    /api/produtos            - Listar todos
-GET    /api/produtos/{id}       - Buscar por ID
-POST   /api/produtos            - Criar novo
-PUT    /api/produtos/{id}       - Atualizar
-DELETE /api/produtos/{id}       - Remover
-```
-
-#### 💰 Preços, 💵 Custos, 📦 Estoques, 🔑 Acessos, 📞 Contatos
-Seguem o mesmo padrão REST acima.
-
-### Exemplo de Requisição
-
-**Criar Pessoa:**
-```json
-POST /api/v1/pessoas
-Content-Type: application/json
-
-{
-  "nomeCompleto": "João Silva",
-  "cpfCnpj": "12345678901",
-  "dataNascimento": "1990-01-01",
-  "tipoPessoa": "FISICA",
-  "role": "CLIENTE"
-}
-```
-
----
-
-## 📸 Screenshots
-
-### Tela de Login
-```
-╔═══════════════════════════════════╗
-║         🔐 LOGIN                  ║
-╠═══════════════════════════════════╣
-║  Usuário: [__________________]    ║
-║  Senha:   [__________________]    ║
-║                                   ║
-║     [     ENTRAR     ]            ║
-║     [    CADASTRAR   ]            ║
-╚═══════════════════════════════════╝
-```
-
-### Tela Principal
-```
-╔═══════════════════════════════════╗
-║   🏪 GERENCIAMENTO PDV            ║
-╠═══════════════════════════════════╣
-║  [ Gerenciar Pessoas      ]       ║
-║  [ Gerenciar Preços       ]       ║
-║  [ Gerenciar Produtos     ]       ║
-║  [ Gerenciar Custos       ]       ║
-║  [ Gerenciar Estoques     ]       ║
-║  [ Gerenciar Acessos      ]       ║
-║  [ Gerenciar Contatos     ]       ║
-╚═══════════════════════════════════╝
-```
-
----
-
-## 📁 Estrutura do Projeto
-
-```
-pdv-posto-combustivel/
-├── pdv-posto-combustivel/          # Backend (Spring Boot)
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/
-│   │   │   │   └── com/br/pdvpostocombustivel/
-│   │   │   │       ├── api/             # Controllers REST
-│   │   │   │       │   ├── pessoa/
-│   │   │   │       │   ├── produto/
-│   │   │   │       │   ├── preco/
-│   │   │   │       │   ├── custo/
-│   │   │   │       │   ├── estoque/
-│   │   │   │       │   ├── acesso/
-│   │   │   │       │   └── contato/
-│   │   │   │       ├── config/          # Configurações
-│   │   │   │       ├── domain/
-│   │   │   │       │   ├── entity/      # Entidades JPA
-│   │   │   │       │   └── repository/  # Repositories
-│   │   │   │       ├── enums/           # Enumerações
-│   │   │   │       ├── exception/       # Exceções customizadas
-│   │   │   │       └── util/            # Utilitários
-│   │   │   └── resources/
-│   │   │       ├── application.properties
-│   │   │       └── schema.sql
-│   │   └── test/                        # Testes
-│   └── pom.xml
-│
-├── JavaPoo-Front-End-main/             # Frontend (Java Swing)
-│   ├── src/
-│   │   └── main/
-│   │       └── java/
-│   │           └── br/com/PdvFrontEnd/
-│   │               ├── view/            # Telas Swing
-│   │               │   ├── MainApp.java
-│   │               │   ├── LoginView.java
-│   │               │   ├── RegisterView.java
-│   │               │   ├── PessoaList.java
-│   │               │   ├── PessoaForm.java
-│   │               │   └── ...
-│   │               ├── service/         # Services HTTP
-│   │               ├── model/           # Models
-│   │               ├── dto/             # DTOs
-│   │               └── util/            # Utilitários
-│   └── pom.xml
-│
-├── _docs_e_scripts/                    # Documentação e Scripts SQL
-│   ├── PASSO1_CRIAR_BANCO.sql
-│   ├── PASSO2_CRIAR_TABELAS_E_DADOS.sql
-│   ├── GUIA_BANCO_DE_DADOS.md
-│   └── ...
-│
-├── COMO_CONFIGURAR_E_TESTAR.md         # Guia de instalação
-├── README.md                            # Este arquivo
-└── pom.xml
-```
-
----
 
 ## 🤝 Contribuindo
 
-Contribuições são bem-vindas! Para contribuir:
+Contribuições são bem-vindas! Se você deseja aprimorar este projeto, siga os passos:
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1.  Faça um **Fork** do projeto.
+2.  Crie uma *branch* para sua funcionalidade (`git checkout -b feature/nova-funcionalidade`).
+3.  Faça o *commit* de suas alterações (`git commit -m 'feat: Adiciona nova funcionalidade X'`).
+4.  Faça o *push* para a *branch* (`git push origin feature/nova-funcionalidade`).
+5.  Abra um **Pull Request**.
 
----
+## 📄 Licença
 
-## 📝 Licença
+Este projeto está licenciado sob a Licença **MIT**. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+## 📧 Contato
 
----
-
-## 👨‍💻 Autor
-
-**Sidney Emanuel Oliveira**
-
-- GitHub: [@Sidney-Emanuel-Oliveira](https://github.com/Sidney-Emanuel-Oliveira)
-- LinkedIn: [Sidney Emanuel](https://linkedin.com/in/sidney-emanuel)
+*   **Autor:** Gilvan Pedro
+*   **GitHub:** [GilvanPedro](https://github.com/GilvanPedro)
 
 ---
-
-## 📞 Contato
-
-Para dúvidas, sugestões ou reportar problemas:
-
-- 📧 Email: sidney.emanuel@example.com
-- 🐛 Issues: [GitHub Issues](https://github.com/Sidney-Emanuel-Oliveira/pdv-posto-combustivel/issues)
-
----
-
-## 🎓 Projeto Acadêmico
-
-Este projeto foi desenvolvido como trabalho acadêmico para demonstrar conhecimentos em:
-
-- ✅ Programação Orientada a Objetos (POO)
-- ✅ Desenvolvimento de APIs REST
-- ✅ Persistência de dados com JPA/Hibernate
-- ✅ Desenvolvimento de interfaces gráficas
-- ✅ Integração Backend-Frontend
-- ✅ Padrões de Projeto
-- ✅ Boas Práticas de Programação
-
----
-
-## 🔗 Links Úteis
-
-- [Documentação Spring Boot](https://spring.io/projects/spring-boot)
-- [Documentação PostgreSQL](https://www.postgresql.org/docs/)
-- [Documentação Java Swing](https://docs.oracle.com/javase/tutorial/uiswing/)
-- [Guia de Instalação Completo](COMO_CONFIGURAR_E_TESTAR.md)
-
----
-
-<div align="center">
-
-**⭐ Se este projeto te ajudou, considere dar uma estrela! ⭐**
-
-Desenvolvido com ❤️ por [Sidney Emanuel Oliveira](https://github.com/Sidney-Emanuel-Oliveira)
-
-</div>
-
+*Este README foi aprimorado por Manus AI.*

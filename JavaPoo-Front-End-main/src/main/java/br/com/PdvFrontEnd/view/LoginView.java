@@ -11,13 +11,13 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
 public class LoginView extends JFrame {
-    private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
-    private static final Color SECONDARY_COLOR = new Color(75, 75, 75);
-    private static final Color ACCENT_COLOR = new Color(100, 80, 180);
-    private static final Color SUCCESS_COLOR = new Color(222, 187, 109);
-    private static final Color PURPLE_COLOR = new Color(89, 129, 182);
+    private static final Color PRIMARY_COLOR = new Color(138, 43, 226); // Roxo Elétrico (Accent)
+    private static final Color SECONDARY_COLOR = new Color(30, 30, 30); // Fundo Principal (Cinza Escuro)
+    private static final Color ACCENT_COLOR = new Color(44, 44, 44); // Card de Login (Cinza Médio Escuro)
+    private static final Color SUCCESS_COLOR = new Color(76, 175, 80); // Sucesso (Verde)
+    private static final Color PURPLE_COLOR = new Color(255, 152, 0); // Alerta (Laranja)
     private static final Color TEXT_COLOR = Color.WHITE;
-    private static final Color BUTTON_HOVER_COLOR = new Color(169, 156, 199);
+    private static final Color BUTTON_HOVER_COLOR = new Color(150, 60, 240); // Roxo mais claro para hover
 
     private JTextField txtUsername;
     private JPasswordField txtPassword;
@@ -39,7 +39,7 @@ public class LoginView extends JFrame {
         setLocationRelativeTo(null);
         setUndecorated(false);
 
-        // Painel de fundo com gradiente
+        // Painel de fundo com cor sólida minimalista
         JPanel backgroundPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -48,15 +48,14 @@ public class LoginView extends JFrame {
                 g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
                 int w = getWidth();
                 int h = getHeight();
-                GradientPaint gp = new GradientPaint(0, 0, SECONDARY_COLOR, 0, h, SECONDARY_COLOR.darker());
-                g2d.setPaint(gp);
+                g2d.setColor(SECONDARY_COLOR);
                 g2d.fillRect(0, 0, w, h);
             }
         };
         backgroundPanel.setLayout(new BorderLayout(10, 10));
         setContentPane(backgroundPanel);
 
-        // Card principal com sombra
+        // Card principal minimalista
         JPanel cardPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -64,18 +63,14 @@ public class LoginView extends JFrame {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Sombra
-                g2d.setColor(new Color(0, 0, 0, 50));
-                g2d.fillRoundRect(5, 5, getWidth()-10, getHeight()-5, 25, 25);
+                // Card de Login (ACCENT_COLOR)
+                g2d.setColor(ACCENT_COLOR);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 25, 25);
 
-                // Card branco
-                g2d.setColor(new Color(52, 73, 94));
-                g2d.fillRoundRect(0, 0, getWidth()-10, getHeight()-10, 25, 25);
-
-                // Borda brilhante
-                g2d.setColor(new Color(255, 255, 255, 30));
+                // Borda de destaque (Roxo Elétrico)
+                g2d.setColor(PRIMARY_COLOR);
                 g2d.setStroke(new BasicStroke(2));
-                g2d.drawRoundRect(1, 1, getWidth()-12, getHeight()-12, 25, 25);
+                g2d.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 25, 25);
 
                 g2d.dispose();
             }
@@ -87,31 +82,16 @@ public class LoginView extends JFrame {
         // Espaçamento superior
         cardPanel.add(Box.createRigidArea(new Dimension(0, 10)));
 
-        // Título com efeito
-        JLabel lblTitle = new JLabel("Sistema PDV") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2d = (Graphics2D) g;
-                g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-                // Sombra do texto
-                g2d.setColor(new Color(0, 0, 0, 100));
-                g2d.setFont(getFont());
-                FontMetrics fm = g2d.getFontMetrics();
-                int x = (getWidth() - fm.stringWidth(getText())) / 2;
-                g2d.drawString(getText(), x + 2, getHeight() / 2 + fm.getAscent() / 2 + 2);
-
-                super.paintComponent(g);
-            }
-        };
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 36));
+        // Título com quebra de linha: PDV Posto de Combustível
+        JLabel lblTitle = new JLabel("<html><center>PDV Posto de<br>Combustível</center></html>");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 40));
         lblTitle.setForeground(TEXT_COLOR);
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         cardPanel.add(lblTitle);
 
         JLabel lblSubtitle = new JLabel("Acesso ao Sistema");
-        lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        lblSubtitle.setForeground(new Color(189, 195, 199));
+        lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        lblSubtitle.setForeground(PRIMARY_COLOR);
         lblSubtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         cardPanel.add(lblSubtitle);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
@@ -158,7 +138,7 @@ public class LoginView extends JFrame {
         cardPanel.add(txtPassword);
         cardPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        // Botão Login com gradiente
+        // Botão Login com cor sólida de destaque
         JButton btnLogin = createModernButton("ENTRAR", PRIMARY_COLOR, BUTTON_HOVER_COLOR);
         btnLogin.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnLogin.setMaximumSize(new Dimension(340, 50));
@@ -168,7 +148,7 @@ public class LoginView extends JFrame {
         cardPanel.add(Box.createRigidArea(new Dimension(0, 12)));
 
         // Botão Preencher Informações
-        JButton btnPreencherInfo = createModernButton("Preencher Informações", SUCCESS_COLOR, SUCCESS_COLOR.darker());
+        JButton btnPreencherInfo = createModernButton("Cadastrar", SUCCESS_COLOR, SUCCESS_COLOR.darker());
         btnPreencherInfo.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnPreencherInfo.setMaximumSize(new Dimension(340, 45));
         btnPreencherInfo.addActionListener(e -> new CadastroPessoaView().setVisible(true));
@@ -268,7 +248,7 @@ public class LoginView extends JFrame {
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
                 if (isSelected()) {
-                    g2d.setColor(new Color(52, 152, 219, 30));
+                    g2d.setColor(PRIMARY_COLOR.brighter());
                     g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
                 }
 
@@ -286,8 +266,6 @@ public class LoginView extends JFrame {
 
     private JTextField createStyledTextField(int columns) {
         JTextField field = new JTextField(columns) {
-            private boolean focused = false;
-
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
@@ -305,11 +283,11 @@ public class LoginView extends JFrame {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                if (focused) {
-                    g2d.setColor(SUCCESS_COLOR);
+                if (hasFocus()) {
+                    g2d.setColor(PRIMARY_COLOR);
                     g2d.setStroke(new BasicStroke(2.5f));
                 } else {
-                    g2d.setColor(PRIMARY_COLOR);
+                    g2d.setColor(new Color(100, 100, 100)); // Cinza para borda normal
                     g2d.setStroke(new BasicStroke(1.5f));
                 }
 
@@ -337,8 +315,6 @@ public class LoginView extends JFrame {
 
     private JPasswordField createStyledPasswordField(int columns) {
         JPasswordField field = new JPasswordField(columns) {
-            private boolean focused = false;
-
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2d = (Graphics2D) g.create();
@@ -356,11 +332,11 @@ public class LoginView extends JFrame {
                 Graphics2D g2d = (Graphics2D) g.create();
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                if (focused) {
-                    g2d.setColor(SUCCESS_COLOR);
+                if (hasFocus()) {
+                    g2d.setColor(PRIMARY_COLOR);
                     g2d.setStroke(new BasicStroke(2.5f));
                 } else {
-                    g2d.setColor(PRIMARY_COLOR);
+                    g2d.setColor(new Color(100, 100, 100)); // Cinza para borda normal
                     g2d.setStroke(new BasicStroke(1.5f));
                 }
 
@@ -389,7 +365,7 @@ public class LoginView extends JFrame {
     private JButton createModernButton(String text, Color startColor, Color endColor) {
         JButton button = new JButton(text) {
             private boolean hovered = false;
-            private int shadowSize = 5;
+            private int shadowSize = 0; // Removendo sombra para minimalismo
 
             @Override
             protected void paintComponent(Graphics g) {
@@ -400,34 +376,21 @@ public class LoginView extends JFrame {
                 int w = getWidth();
                 int h = getHeight();
 
-                // Sombra
-                g2d.setColor(new Color(0, 0, 0, 30));
-                for (int i = 0; i < shadowSize; i++) {
-                    g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.05f));
-                    g2d.fill(new RoundRectangle2D.Double(i, i, w - i * 2, h - i * 2, 15, 15));
-                }
+                // Sombra (Removida)
 
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 
-                // Gradiente
-                GradientPaint gradient;
+                // Cor Sólida (Roxo Elétrico)
                 if (hovered) {
-                    Color hoverStart = endColor.darker();
-                    Color hoverEnd = endColor;
-                    gradient = new GradientPaint(0, 0, hoverStart, 0, h, hoverEnd);
+                    g2d.setColor(BUTTON_HOVER_COLOR);
                 } else {
-                    gradient = new GradientPaint(0, 0, startColor, 0, h, endColor);
+                    g2d.setColor(startColor);
                 }
 
-                g2d.setPaint(gradient);
                 g2d.fill(new RoundRectangle2D.Double(shadowSize, shadowSize,
                         w - shadowSize * 2, h - shadowSize * 2, 15, 15));
 
-                // Borda brilhante
-                g2d.setColor(new Color(255, 255, 255, 50));
-                g2d.setStroke(new BasicStroke(2));
-                g2d.draw(new RoundRectangle2D.Double(shadowSize + 1, shadowSize + 1,
-                        w - shadowSize * 2 - 2, h - shadowSize * 2 - 2, 15, 15));
+                // Borda brilhante (Removida)
 
                 g2d.dispose();
                 super.paintComponent(g);
@@ -454,4 +417,3 @@ public class LoginView extends JFrame {
         return button;
     }
 }
-

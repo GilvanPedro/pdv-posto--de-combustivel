@@ -1,17 +1,15 @@
 package br.com.PdvFrontEnd.view;
 
 import br.com.PdvFrontEnd.util.SessionManager;
-
 import javax.swing.*;
 import java.awt.*;
 
-public class MainApp {
-    // Cores para a nova interface (mantidas para consistência)
+public class MainApp { 
     private static final Color PRIMARY_COLOR = new Color(143, 125, 240);
     private static final Color SECONDARY_COLOR = new Color(75, 75, 75);
     private static final Color TEXT_COLOR = Color.WHITE;
 
-    public static void main(String[] args) {
+    public static void main(String[] args){
         EventQueue.invokeLater(() -> {
             // Inicia o sistema sempre pela tela de login
             new LoginView().setVisible(true);
@@ -20,11 +18,10 @@ public class MainApp {
 
     public static void showMainApp() {
         EventQueue.invokeLater(() -> {
-            // Chama a nova MainFrame que contém o JTabbedPane
             new MainFrame().setVisible(true);
         });
     }
-    
+
     // Método auxiliar para verificar acesso de administrador (mantido)
     public static boolean checkAdminAccess(Component parent) {
         SessionManager sessionManager = SessionManager.getInstance();
