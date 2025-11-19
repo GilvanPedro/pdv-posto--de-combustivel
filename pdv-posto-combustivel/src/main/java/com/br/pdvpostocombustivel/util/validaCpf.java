@@ -7,6 +7,11 @@ public class validaCpf {
             return false;
         }
 
+        // verifica por 00000000000 ou 11111111111 e retorna falso
+        if (cpf.matches("(\\d)\\1{10}")) {
+            return false;
+        }
+
         int sum = 0;
         for (int i = 0; i < 9; i++) {
             sum += (cpf.charAt(i) - '0') * (10 - i);

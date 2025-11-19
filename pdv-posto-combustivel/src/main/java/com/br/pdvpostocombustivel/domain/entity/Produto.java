@@ -6,19 +6,24 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+// Marca a classe como uma entidade JPA, mapeando-a para uma tabela no banco de dados.
 @Entity
+// Especifica o nome da tabela no banco de dados.
 @Table(name = "produtos")
+// Entidade que representa um Produto no sistema.
 public class Produto {
 
+    // Marca o campo como a chave primária da tabela.
     @Id
+    // Configura a geração automática do valor da chave primária (auto-incremento).
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+        private Long id; // Identificador único do produto.
 
-    private String nome;
-    private String referencia;
-    private String fornecedor;
-    private String categoria;
-    private String marca;
+        private String nome; // Nome do produto.
+        private String referencia; // Código de referência ou SKU do produto.
+        private String fornecedor; // Nome do fornecedor.
+        private String categoria; // Categoria do produto (ex: Combustível, Óleo, Pneu).
+        private String marca; // Marca do produto.
 
     // Construtor existente
     public Produto(String nome, String referencia, String fornecedor, String categoria, String marca) {

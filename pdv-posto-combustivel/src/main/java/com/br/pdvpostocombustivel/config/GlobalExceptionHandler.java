@@ -12,9 +12,12 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+// Anotação que transforma esta classe em um manipulador global de exceções para todos os controladores REST.
 @RestControllerAdvice
+// Classe responsável por centralizar o tratamento de erros da API.
 public class GlobalExceptionHandler {
 
+    // Manipula exceções de entidade não encontrada (ex: registro não existe no banco). Retorna HTTP 404.
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -25,6 +28,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
+    // Manipula erros de validação de argumentos (ex: campos obrigatórios faltando). Retorna HTTP 400.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -43,6 +47,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
+    // Manipula exceções de argumento ilegal (ex: regras de negócio violadas). Retorna HTTP 400.
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -53,6 +58,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    // Manipulador genérico para qualquer outra exceção não tratada. Retorna HTTP 500.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse error = new ErrorResponse(
@@ -64,6 +70,7 @@ public class GlobalExceptionHandler {
     }
 
     // Classes internas para respostas de erro
+    // Classe interna para padronizar a resposta de erro simples.
     public static class ErrorResponse {
         private int status;
         private String message;
@@ -81,6 +88,7 @@ public class GlobalExceptionHandler {
         public LocalDateTime getTimestamp() { return timestamp; }
     }
 
+    // Classe interna para padronizar a resposta de erro de validação, incluindo detalhes dos campos com erro.
     public static class ValidationErrorResponse extends ErrorResponse {
         private Map<String, String> errors;
 

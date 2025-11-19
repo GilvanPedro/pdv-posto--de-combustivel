@@ -17,14 +17,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Marca a classe como um controlador REST, tratando requisições HTTP e retornando dados diretamente.
 @RestController
+// Define o caminho base para todos os endpoints deste controlador.
 @RequestMapping("/api/produtos")
+// Configuração do Swagger/OpenAPI para agrupar e descrever os endpoints.
 @Tag(name = "Produtos", description = "Operações relacionadas a produtos")
+// Controlador responsável por gerenciar as requisições HTTP para a entidade Produto.
 public class ProdutoController {
 
+    // Injeção de dependência do serviço que contém a lógica de negócio.
     @Autowired
     private ProdutoService produtoService;
 
+    // Mapeia requisições HTTP POST para criar um novo produto.
     @PostMapping
     @Operation(summary = "Criar novo produto", description = "Cria um novo produto no sistema")
     @ApiResponses(value = {
@@ -37,6 +43,8 @@ public class ProdutoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // Mapeia requisições HTTP GET com um ID na URL para buscar um produto específico.
+    // Mapeia requisições HTTP GET para listar todos os produtos.
     @GetMapping("/{id}")
     @Operation(summary = "Buscar produto por ID", description = "Retorna um produto específico pelo ID")
     @ApiResponses(value = {
@@ -49,6 +57,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.buscarPorId(id));
     }
 
+    // Mapeia requisições HTTP GET para listar todos os produtos.
     @GetMapping
     @Operation(summary = "Listar todos os produtos", description = "Retorna uma lista com todos os produtos")
     @ApiResponse(responseCode = "200", description = "Lista de produtos retornada com sucesso",
@@ -57,6 +66,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.listarTodos());
     }
 
+    // Mapeia requisições HTTP PUT com um ID na URL para atualizar um produto existente.
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar produto", description = "Atualiza um produto existente pelo ID")
     @ApiResponses(value = {
@@ -71,6 +81,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.atualizar(id, request));
     }
 
+    // Mapeia requisições HTTP DELETE com um ID na URL para remover um produto.
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletar produto", description = "Remove um produto do sistema pelo ID")
     @ApiResponses(value = {
